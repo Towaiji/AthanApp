@@ -28,7 +28,7 @@ export default function TabsLayout() {
     >
       {/* Prayer Times Tab */}
       <Tabs.Screen
-        name="prayerTimes"
+        name="index"
         options={{
           headerTitle: "Prayer Times",
           tabBarShowLabel: false,
