@@ -2,5 +2,8 @@
   "dependencies": {
     "@react-native-picker/picker": "^2.11.0",
     "react-native-maps": "^1.23.7"
+  },
+  "devDependencies": {
+    "@react-native-community/cli": "^18.0.0"
   }
 }
