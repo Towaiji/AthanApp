@@ -370,8 +370,6 @@ const styles = StyleSheet.create({
   timePicker: {
     width: 150,
     height: 30,
-    color: '#333333',           
-    fontSize: 16
   },
   buttonContainer: {
     flexDirection: 'column',
