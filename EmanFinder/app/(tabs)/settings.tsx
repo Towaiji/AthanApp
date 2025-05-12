@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   },
   reminderPicker: {
     width: '100%',
-    height: 150,
+    height: 200,
     color: '#333333',
   },
   timePicker: {
