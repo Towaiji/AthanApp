@@ -5,7 +5,14 @@ import * as Location from 'expo-location';
 
 // Function to format time in a readable format
 const formatTime = (timeString: string) => {
-  return timeString;
+  // Convert 24-hour format to 12-hour format with AM/PM
+  if (!timeString) return '';
+  
+  const [hours, minutes] = timeString.split(':').map(num => parseInt(num, 10));
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+  
+  return `${formattedHours}:${minutes.toString().padStart(2, '0')} ${period}`;
 };
 
 // Function to get current date in nice format
@@ -15,9 +22,19 @@ const getCurrentDate = () => {
   return date.toLocaleDateString(undefined, options);
 };
 
-// Function to get current Islamic date (in a real app you'd use a proper Hijri calendar library)
-const getIslamicDate = () => {
-  return "Ramadan 15, 1445 AH"; // Example - would be dynamic in a real app
+// Function to get current Islamic date using Aladhan API
+const getIslamicDate = async (latitude: number, longitude: number) => {
+  try {
+    const response = await fetch(
+      `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=2`
+    );
+    const data = await response.json();
+    const hijriDate = data.data.date.hijri;
+    return `${hijriDate.month.en} ${hijriDate.day}, ${hijriDate.year} AH`;
+  } catch (error) {
+    console.error('Error fetching Islamic date:', error);
+    return "Unable to fetch Islamic date";
+  }
 };
 
 // Which prayer time is current or next
@@ -29,7 +46,10 @@ const getCurrentPrayerInfo = (prayerTimes: { [key: string]: string }) => {
   const currentMinute = now.getMinutes();
   const currentTimeInMinutes = currentHour * 60 + currentMinute;
   
-  const prayers = Object.keys(prayerTimes);
+  // We only want the 5 main prayers plus sunrise
+  const prayerNames = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  const prayers = prayerNames.filter(prayer => prayerTimes[prayer]);
+  
   let currentPrayer = null;
   let nextPrayer = null;
   
@@ -96,21 +116,28 @@ const getTimeUntilNextPrayer = (prayerTimes: { [key: string]: string }, nextPray
 // Function to fetch prayer times from Aladhan API
 const fetchPrayerTimes = async (latitude: number, longitude: number) => {
   try {
-    // For a real app, you'd make an API call like:
-    // const response = await fetch(
-    //   `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=2`
-    // );
-    // const data = await response.json();
-    // return data.data.timings;
+    // Make an actual API call to Aladhan API
+    const response = await fetch(
+      `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=2`
+    );
     
-    // For now, return mock data but with better formatting
+    if (!response.ok) {
+      throw new Error(`API responded with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    // Extract only the needed prayer times from the API response
+    const timings = data.data.timings;
+    
+    // Return only the main prayer times we want to display
     return {
-      Fajr: '05:15',
-      Sunrise: '06:32',
-      Dhuhr: '12:30',
-      Asr: '15:45',
-      Maghrib: '18:52',
-      Isha: '20:15',
+      Fajr: timings.Fajr,
+      Sunrise: timings.Sunrise,
+      Dhuhr: timings.Dhuhr,
+      Asr: timings.Asr,
+      Maghrib: timings.Maghrib,
+      Isha: timings.Isha,
     };
   } catch (error) {
     console.error('Error fetching prayer times:', error);
@@ -124,6 +151,8 @@ export default function PrayerTimes() {
   const [error, setError] = useState<string | null>(null);
   const [location, setLocation] = useState<Location.LocationObjectCoords | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [islamicDate, setIslamicDate] = useState<string>("Loading...");
+  const [locationName, setLocationName] = useState<string>("");
   
   const fetchData = async () => {
     try {
@@ -140,12 +169,39 @@ export default function PrayerTimes() {
       let locationResult = await Location.getCurrentPositionAsync({});
       setLocation(locationResult.coords);
       
+      // Try to get location name using reverse geocoding
+      try {
+        const geoAddress = await Location.reverseGeocodeAsync({
+          latitude: locationResult.coords.latitude,
+          longitude: locationResult.coords.longitude,
+        });
+        
+        if (geoAddress && geoAddress.length > 0) {
+          const address = geoAddress[0];
+          setLocationName(
+            [address.city, address.region, address.country]
+              .filter(Boolean)
+              .join(', ')
+          );
+        }
+      } catch (geoError) {
+        console.error('Error getting location name:', geoError);
+      }
+      
       // Fetch prayer times using location
       const times = await fetchPrayerTimes(
         locationResult.coords.latitude,
         locationResult.coords.longitude
       );
       setPrayerTimes(times);
+      
+      // Fetch Islamic date
+      const hijriDate = await getIslamicDate(
+        locationResult.coords.latitude,
+        locationResult.coords.longitude
+      );
+      setIslamicDate(hijriDate);
+      
       setError(null);
     } catch (err) {
       setError('Failed to fetch prayer times. Please try again later.');
@@ -187,6 +243,7 @@ export default function PrayerTimes() {
       <View style={styles.center}>
         <Ionicons name="alert-circle-outline" size={48} color="red" />
         <Text style={styles.errorText}>{error}</Text>
+        <Text style={styles.retryText} onPress={fetchData}>Tap to retry</Text>
       </View>
     );
   }
@@ -204,7 +261,8 @@ export default function PrayerTimes() {
     >
       <View style={styles.header}>
         <Text style={styles.dateText}>{getCurrentDate()}</Text>
-        <Text style={styles.islamicDateText}>{getIslamicDate()}</Text>
+        <Text style={styles.islamicDateText}>{islamicDate}</Text>
+        {locationName ? <Text style={styles.locationNameText}>{locationName}</Text> : null}
       </View>
       
       {nextPrayer && (
@@ -212,7 +270,7 @@ export default function PrayerTimes() {
           <Text style={styles.nextPrayerLabel}>Next Prayer</Text>
           <Text style={styles.nextPrayerName}>{nextPrayer}</Text>
           <Text style={styles.nextPrayerTime}>
-            {prayerTimes && nextPrayer ? prayerTimes[nextPrayer] : ''}
+            {prayerTimes && nextPrayer ? formatTime(prayerTimes[nextPrayer]) : ''}
           </Text>
           <Text style={styles.countdownText}>
             {timeUntilNext} remaining
@@ -241,6 +299,8 @@ export default function PrayerTimes() {
                   <Ionicons name="time" size={24} color="#e91e63" />
                 ) : prayer === 'Fajr' ? (
                   <Ionicons name="sunny-outline" size={24} color="#FF9800" />
+                ) : prayer === 'Sunrise' ? (
+                  <Ionicons name="partly-sunny-outline" size={24} color="#FF9800" />
                 ) : prayer === 'Dhuhr' ? (
                   <Ionicons name="sunny" size={24} color="#FF9800" />
                 ) : prayer === 'Asr' ? (
@@ -281,6 +341,9 @@ export default function PrayerTimes() {
             Location: {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
           </Text>
         )}
+        <Text style={styles.apiCreditText}>
+          Powered by Aladhan API
+        </Text>
       </View>
     </ScrollView>
   );
@@ -309,6 +372,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 20,
   },
+  retryText: {
+    fontSize: 16,
+    color: '#e91e63',
+    marginTop: 20,
+    fontWeight: 'bold',
+  },
   header: {
     padding: 16,
     alignItems: 'center',
@@ -323,6 +392,11 @@ const styles = StyleSheet.create({
   islamicDateText: {
     fontSize: 16,
     color: '#666',
+    marginTop: 4,
+  },
+  locationNameText: {
+    fontSize: 14,
+    color: '#777',
     marginTop: 4,
   },
   nextPrayerCard: {
@@ -419,5 +493,10 @@ const styles = StyleSheet.create({
   locationText: {
     fontSize: 12,
     color: '#999',
+  },
+  apiCreditText: {
+    fontSize: 10,
+    color: '#999',
+    marginTop: 4,
   },
 });
