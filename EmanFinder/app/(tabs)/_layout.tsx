@@ -61,7 +61,16 @@ export default function TabsLayout() {
           ),
         }}
       />
-
+      {/* Quran Reader Tab */}
+      <Tabs.Screen
+        name="quran"
+        options={{
+          headerTitle: 'Quran',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="book-outline" size={24} color={color} />
+          ),
+        }}
+      />
       {/* Settings Tab */}
       <Tabs.Screen
         name="settings"
