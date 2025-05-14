@@ -37,3 +37,11 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Ignore specific files with API keys
+mosqueLocator.tsx

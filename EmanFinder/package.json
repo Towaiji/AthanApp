@@ -17,6 +17,7 @@
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/material-top-tabs": "^7.2.13",
     "@react-navigation/native": "^7.1.6",
+    "dotenv": "^16.5.0",
     "expo": "~53.0.9",
     "expo-blur": "~14.1.4",
     "expo-constants": "~17.1.6",
@@ -40,6 +41,8 @@
     "react-native": "0.79.2",
     "react-native-geolocation-service": "^5.3.1",
     "react-native-gesture-handler": "~2.24.0",
+    "react-native-google-places-autocomplete": "^2.5.7",
+    "react-native-google-places-sdk": "^0.3.1",
     "react-native-maps": "^1.23.7",
     "react-native-pager-view": "^6.7.1",
     "react-native-qibla-finder": "^1.1.2",
@@ -57,6 +60,7 @@
     "@types/react-native-maps": "^0.24.1",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
+    "react-native-dotenv": "^3.4.11",
     "typescript": "~5.8.3"
   },
   "private": true

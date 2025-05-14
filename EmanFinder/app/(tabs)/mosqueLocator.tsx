@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ActivityIndicator, 
-  FlatList, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  FlatList,
   TouchableOpacity,
-  Image,
+  // Image, // Image was not used, can be removed if not needed later
   RefreshControl,
   Linking,
   Platform,
@@ -16,115 +16,144 @@ import {
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 
+// --- Configuration ---
+// IMPORTANT: Replace with your actual Google Places API Key
+const GOOGLE_PLACES_API_KEY = 'AIzaSyCPT7j2OT_1vO50ybyKQKCoCQNQ58A62MA';
+// ---------------------
+
 // Window dimensions for responsive design
 const windowWidth = Dimensions.get('window').width;
 
-// Enhanced mock data - in a real app, you'd fetch from an API
-const MOCK_MOSQUES = [
-  { 
-    id: '1', 
-    name: 'Masjid Al-Huda', 
-    distance: 1.2, 
-    address: '123 Main St, Cityville',
-    prayer_times: { fajr: '5:15 AM', dhuhr: '12:30 PM', asr: '3:45 PM', maghrib: '6:52 PM', isha: '8:15 PM' },
-    hasFacilities: ['parking', 'wudu', 'women_section'],
-    phone: '+1234567890',
-    website: 'https://masjidalhuda.org'
-  },
-  { 
-    id: '2', 
-    name: 'Islamic Center of Cityville', 
-    distance: 2.5, 
-    address: '456 Oak Ave, Cityville',
-    prayer_times: { fajr: '5:20 AM', dhuhr: '12:35 PM', asr: '3:50 PM', maghrib: '6:55 PM', isha: '8:20 PM' },
-    hasFacilities: ['parking', 'wudu', 'women_section', 'classroom'],
-    phone: '+1234567891',
-    website: 'https://iccityville.org'
-  },
-  { 
-    id: '3', 
-    name: 'An-Noor Mosque', 
-    distance: 3.1, 
-    address: '789 Pine Rd, Cityville',
-    prayer_times: { fajr: '5:10 AM', dhuhr: '12:25 PM', asr: '3:40 PM', maghrib: '6:50 PM', isha: '8:10 PM' },
-    hasFacilities: ['parking', 'wudu'],
-    phone: '+1234567892',
-    website: 'https://annoor.org'
-  },
-  { 
-    id: '4', 
-    name: 'Masjid As-Salam', 
-    distance: 4.3, 
-    address: '101 Cedar Blvd, Cityville',
-    prayer_times: { fajr: '5:18 AM', dhuhr: '12:33 PM', asr: '3:48 PM', maghrib: '6:54 PM', isha: '8:18 PM' },
-    hasFacilities: ['parking', 'wudu', 'women_section', 'classroom', 'library'],
-    phone: '+1234567893',
-    website: 'https://assalam.org'
-  },
-  { 
-    id: '5', 
-    name: 'Downtown Islamic Center', 
-    distance: 5.7, 
-    address: '222 Maple St, Cityville',
-    prayer_times: { fajr: '5:12 AM', dhuhr: '12:27 PM', asr: '3:42 PM', maghrib: '6:51 PM', isha: '8:12 PM' },
-    hasFacilities: ['parking', 'women_section'],
-    phone: '+1234567894',
-    website: 'https://downtownic.org'
-  }
-];
+// Interface for the mosque data we expect after processing API response
+interface Mosque {
+  id: string; // Corresponds to place_id from Google API
+  name: string;
+  distance: number | null; // Distance in km
+  address: string; // Corresponds to vicinity or formatted_address
+  // Google Places API doesn't directly provide prayer times or detailed facilities in Nearby Search.
+  // These would require a secondary Place Details request and parsing potentially unstructured data.
+  // For this integration, we'll acknowledge they might not be available or use placeholders.
+  prayer_times?: { [key: string]: string }; // Optional: Placeholder if you find a way to get this data
+  hasFacilities?: string[]; // Optional: Placeholder
+  phone?: string; // From Place Details (formatted_phone_number)
+  website?: string; // From Place Details
+  latitude?: number;
+  longitude?: number;
+}
 
-// Function to simulate fetching nearby mosques with more realistic data
-const fetchNearbyMosques = async (latitude: number, longitude: number, radius: number = 10) => {
-  console.log(`Searching mosques near: ${latitude}, ${longitude} within ${radius} km`);
-  
-  // In a real app, you would make an API call here using the coordinates and radius
-  // For example:
-  // const response = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius*1000}&type=mosque&key=YOUR_API_KEY`);
-  // const data = await response.json();
-  
-  // For now, we'll return the mock data with a simulated delay
-  return new Promise((resolve) => {
-    // Simulate network request
-    setTimeout(() => {
-      // Sort by distance
-      const sortedMosques = [...MOCK_MOSQUES].sort((a, b) => a.distance - b.distance);
-      resolve(sortedMosques);
-    }, 1000);
-  });
+// Function to calculate distance between two lat/lng points (Haversine formula)
+const getDistanceInKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371; // Radius of the earth in km
+  const dLat = deg2rad(lat2 - lat1);
+  const dLon = deg2rad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c; // Distance in km
+  return d;
 };
 
-// Function to open navigation to the mosque
-const openDirections = (address: string) => {
-  // Format the query string for maps
-  const query = encodeURIComponent(address);
+const deg2rad = (deg: number) => {
+  return deg * (Math.PI / 180);
+};
+
+
+// Function to fetch nearby mosques from Google Places API
+const fetchRealNearbyMosques = async (
+  latitude: number,
+  longitude: number,
+  radiusKm: number = 10
+): Promise<Mosque[]> => {
+  const radiusMeters = radiusKm * 1000; // Convert km to meters for API
+  const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radiusMeters}&type=mosque&key=${GOOGLE_PLACES_API_KEY}`;
+
+  console.log(`Workspaceing from: ${url}`); // For debugging
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.status === 'OK') {
+      return data.results.map((place: any) => {
+        const placeLat = place.geometry?.location?.lat;
+        const placeLng = place.geometry?.location?.lng;
+        let distance = null;
+        if (placeLat && placeLng) {
+          distance = getDistanceInKm(latitude, longitude, placeLat, placeLng);
+        }
+
+        // Basic details from Nearby Search
+        const mosqueData: Mosque = {
+          id: place.place_id,
+          name: place.name || 'Unnamed Mosque',
+          address: place.vicinity || 'Address not available',
+          distance: distance,
+          latitude: placeLat,
+          longitude: placeLng,
+          // Phone and website usually require a Place Details request.
+          // We'll leave them undefined for now or you can make additional calls.
+        };
+        // To get phone/website, you'd make a Place Details request here for each place_id
+        // e.g., `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,formatted_phone_number,website&key=${GOOGLE_PLACES_API_KEY}`
+        // And then populate mosqueData.phone and mosqueData.website
+
+        return mosqueData;
+      }).sort((a: Mosque, b: Mosque) => (a.distance || Infinity) - (b.distance || Infinity)); // Sort by distance
+    } else if (data.status === "ZERO_RESULTS") {
+      console.log("No mosques found by API.");
+      return [];
+    } else {
+      console.error('Google Places API Error:', data.status, data.error_message);
+      Alert.alert('API Error', `Could not fetch mosques: ${data.error_message || data.status}`);
+      return [];
+    }
+  } catch (error) {
+    console.error('Network error fetching mosques:', error);
+    Alert.alert('Network Error', 'Failed to connect to the mosque finding service.');
+    return [];
+  }
+};
+
+
+// --- Helper Functions (openDirections, callMosque, openWebsite) remain the same ---
+const openDirections = (address: string, lat?: number, lng?: number) => {
+  let query = encodeURIComponent(address);
+  let url = '';
+
+  if (lat && lng) {
+    // If lat/lng are available, use them for more precise navigation
+    query = `${lat},${lng}`;
+    url = Platform.select({
+        ios: `maps:0,0?q=&ll=${query}`,
+        android: `geo:${query}?q=${query}`,
+    })!;
+  } else {
+    // Fallback to address-based query
+    url = Platform.select({
+        ios: `maps:0,0?q=${query}`,
+        android: `geo:0,0?q=${query}`,
+    })!;
+  }
   
-  // Create the appropriate URL based on the platform
-  const url = Platform.select({
-    ios: `maps:0,0?q=${query}`,
-    android: `geo:0,0?q=${query}`,
-  });
-  
-  // Check if we can open the URL
-  Linking.canOpenURL(url!)
+  Linking.canOpenURL(url)
     .then((supported) => {
       if (supported) {
-        return Linking.openURL(url!);
+        return Linking.openURL(url);
       } else {
-        // Fallback to Google Maps on the web
-        const webUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+        const webUrl = `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(address)}`;
         return Linking.openURL(webUrl);
       }
     })
     .catch((err) => {
       Alert.alert('Error', 'Could not open maps application.');
-      console.error('An error occurred', err);
+      console.error('An error occurred opening maps', err);
     });
 };
 
-// Function to open phone dialer
 const callMosque = (phoneNumber: string) => {
   const url = `tel:${phoneNumber}`;
-  
   Linking.canOpenURL(url)
     .then((supported) => {
       if (supported) {
@@ -135,57 +164,46 @@ const callMosque = (phoneNumber: string) => {
     })
     .catch((err) => {
       Alert.alert('Error', 'Could not open phone dialer');
-      console.error('An error occurred', err);
+      console.error('An error occurred opening dialer', err);
     });
 };
 
-// Function to open website
 const openWebsite = (website: string) => {
-  Linking.canOpenURL(website)
+  // Ensure the website URL has a scheme
+  const fullUrl = website.startsWith('http://') || website.startsWith('https://')
+    ? website
+    : `http://${website}`;
+
+  Linking.canOpenURL(fullUrl)
     .then((supported) => {
       if (supported) {
-        return Linking.openURL(website);
+        return Linking.openURL(fullUrl);
       } else {
         Alert.alert('Error', 'Cannot open this website');
       }
     })
     .catch((err) => {
       Alert.alert('Error', 'Could not open website');
-      console.error('An error occurred', err);
+      console.error('An error occurred opening website', err);
     });
 };
 
-// Custom component to display facility icons
+
+// --- FacilityIcon component remains the same ---
 const FacilityIcon = ({ type }: { type: string }) => {
-  let iconName: any = 'help-circle-outline';
+  let iconName: any = 'help-circle-outline'; // Default icon
   let iconColor = '#666';
-  
+
   switch (type) {
-    case 'parking':
-      iconName = 'car-outline';
-      iconColor = '#3498db';
-      break;
-    case 'wudu':
-      iconName = 'water-outline';
-      iconColor = '#2ecc71';
-      break;
-    case 'women_section':
-      iconName = 'woman-outline';
-      iconColor = '#e91e63';
-      break;
-    case 'classroom':
-      iconName = 'book-outline';
-      iconColor = '#f39c12';
-      break;
-    case 'library':
-      iconName = 'library-outline';
-      iconColor = '#9b59b6';
-      break;
-    default:
-      iconName = 'add-circle-outline';
-      iconColor = '#666';
+    case 'parking': iconName = 'car-outline'; iconColor = '#3498db'; break;
+    case 'wudu': iconName = 'water-outline'; iconColor = '#2ecc71'; break;
+    case 'women_section': iconName = 'woman-outline'; iconColor = '#e91e63'; break;
+    case 'classroom': iconName = 'book-outline'; iconColor = '#f39c12'; break;
+    case 'library': iconName = 'library-outline'; iconColor = '#9b59b6'; break;
+    // Add more cases as needed if you can source this data
+    default: iconName = 'ellipse-outline'; iconColor = '#888'; // Generic facility
   }
-  
+
   return (
     <View style={styles.facilityIcon}>
       <Ionicons name={iconName} size={16} color={iconColor} />
@@ -197,46 +215,42 @@ export default function MosqueLocator() {
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState<Location.LocationObjectCoords | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [mosques, setMosques] = useState<typeof MOCK_MOSQUES>([]);
+  const [mosques, setMosques] = useState<Mosque[]>([]); // Use the new Mosque interface
   const [refreshing, setRefreshing] = useState(false);
   const [searchRadius, setSearchRadius] = useState(10); // Default 10km radius
   const [expandedMosqueId, setExpandedMosqueId] = useState<string | null>(null);
-  
-  // Ref to store last refresh time to prevent too frequent refreshes
+
   const lastRefreshTime = useRef<number>(0);
 
-  const loadMosques = async () => {
+  const loadMosques = async (isRefreshing = false) => {
+    if (!isRefreshing) setLoading(true); else setRefreshing(true);
+    setErrorMsg(null); // Clear previous errors
+
     try {
-      setLoading(true);
-      
-      // Check location permissions
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied. Please enable it in your device settings to find nearby mosques.');
         setLoading(false);
+        setRefreshing(false);
         return;
       }
 
-      // Get current location
       const currentLocation = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
+        accuracy: Location.Accuracy.Balanced, // Can be adjusted: High, Balanced, Low, Lowest
       });
       setLocation(currentLocation.coords);
-      
-      // Fetch mosques based on current location
-      const fetchedMosques: any = await fetchNearbyMosques(
-        currentLocation.coords.latitude, 
+
+      const fetchedMosques = await fetchRealNearbyMosques(
+        currentLocation.coords.latitude,
         currentLocation.coords.longitude,
         searchRadius
       );
       setMosques(fetchedMosques);
-      
-      // Update last refresh time
       lastRefreshTime.current = Date.now();
-      
-    } catch (error) {
-      console.error("Error fetching location or mosques:", error);
-      setErrorMsg('Could not fetch your location or find nearby mosques. Please try again later.');
+
+    } catch (error: any) {
+      console.error("Error in loadMosques:", error);
+      setErrorMsg(error.message || 'Could not fetch your location or find nearby mosques. Please try again later.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -245,26 +259,27 @@ export default function MosqueLocator() {
 
   useEffect(() => {
     loadMosques();
-  }, [searchRadius]);
-  
+  }, [searchRadius]); // Re-fetch when searchRadius changes
+
   const onRefresh = () => {
-    // Prevent refreshing too frequently (minimum 5 seconds between refreshes)
     const now = Date.now();
-    if (now - lastRefreshTime.current < 5000) {
+    if (now - lastRefreshTime.current < 5000 && !__DEV__) { // Allow more frequent refresh in DEV
       Alert.alert('Please wait', 'Refreshing too frequently. Please try again in a few seconds.');
       setRefreshing(false);
       return;
     }
-    
-    setRefreshing(true);
-    loadMosques();
+    loadMosques(true); // Pass true to indicate it's a refresh
   };
-  
+
   const toggleMosqueDetails = (id: string) => {
     setExpandedMosqueId(expandedMosqueId === id ? null : id);
   };
 
-  const renderFacilities = (facilities: string[]) => {
+  // --- renderFacilities remains the same, but data might be less available ---
+  const renderFacilities = (facilities?: string[]) => {
+    if (!facilities || facilities.length === 0) {
+      return <Text style={styles.detailText}>Facility information not available.</Text>;
+    }
     return (
       <View style={styles.facilitiesContainer}>
         {facilities.map((facility, index) => (
@@ -274,78 +289,84 @@ export default function MosqueLocator() {
     );
   };
 
-  const renderMosqueItem = ({ item }: { item: typeof MOCK_MOSQUES[0] }) => {
+  const renderMosqueItem = ({ item }: { item: Mosque }) => {
     const isExpanded = expandedMosqueId === item.id;
-    
+
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.mosqueItem, isExpanded && styles.expandedMosqueItem]}
         onPress={() => toggleMosqueDetails(item.id)}
         activeOpacity={0.7}
       >
         <View style={styles.mosqueHeader}>
           <View style={styles.mosqueIconContainer}>
-            <Ionicons name="moon" size={24} color="#006400" />
+            {/* You might want a more generic icon if mosque-specific icons aren't available */}
+            <Ionicons name="navigate-circle-outline" size={24} color="#006400" />
           </View>
-          
+
           <View style={styles.mosqueInfo}>
             <Text style={styles.mosqueName}>{item.name}</Text>
-            <Text style={styles.mosqueDistance}>{item.distance.toFixed(1)} km away</Text>
-            <Text style={styles.mosqueAddress}>{item.address}</Text>
+            {item.distance !== null && (
+                 <Text style={styles.mosqueDistance}>{item.distance.toFixed(1)} km away</Text>
+            )}
+            <Text style={styles.mosqueAddress} numberOfLines={2}>{item.address}</Text>
           </View>
-          
-          <Ionicons 
-            name={isExpanded ? "chevron-up" : "chevron-down"} 
-            size={24} 
-            color="#666" 
+
+          <Ionicons
+            name={isExpanded ? "chevron-up" : "chevron-down"}
+            size={24}
+            color="#666"
           />
         </View>
-        
-        {/* Expanded details */}
+
         {isExpanded && (
           <View style={styles.expandedContent}>
+            {/* Prayer Times - This data is not directly available from Nearby Search */}
             <View style={styles.prayerTimesContainer}>
               <Text style={styles.sectionTitle}>Prayer Times</Text>
-              <View style={styles.prayerGrid}>
-                {Object.entries(item.prayer_times).map(([prayer, time]) => (
-                  <View key={prayer} style={styles.prayerTime}>
-                    <Text style={styles.prayerName}>{prayer.charAt(0).toUpperCase() + prayer.slice(1)}</Text>
-                    <Text style={styles.prayerTimeText}>{time}</Text>
-                  </View>
-                ))}
-              </View>
+              {item.prayer_times ? (
+                <View style={styles.prayerGrid}>
+                  {Object.entries(item.prayer_times).map(([prayer, time]) => (
+                    <View key={prayer} style={styles.prayerTime}>
+                      <Text style={styles.prayerName}>{prayer.charAt(0).toUpperCase() + prayer.slice(1)}</Text>
+                      <Text style={styles.prayerTimeText}>{time}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <Text style={styles.detailText}>Prayer time information not available for this location via API.</Text>
+              )}
             </View>
 
-            {item.hasFacilities && (
-              <View style={styles.facilitiesSection}>
-                <Text style={styles.sectionTitle}>Facilities</Text>
-                {renderFacilities(item.hasFacilities)}
-              </View>
-            )}
-            
+            {/* Facilities - This data is not directly available from Nearby Search */}
+            <View style={styles.facilitiesSection}>
+              <Text style={styles.sectionTitle}>Facilities</Text>
+              {renderFacilities(item.hasFacilities)}
+            </View>
+
             <View style={styles.actionsContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.actionButton}
-                onPress={() => openDirections(item.address)}
+                onPress={() => openDirections(item.address, item.latitude, item.longitude)}
               >
                 <Ionicons name="navigate" size={20} color="#fff" />
                 <Text style={styles.actionButtonText}>Directions</Text>
               </TouchableOpacity>
-              
+
               {item.phone && (
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.actionButton, styles.actionButtonCall]}
-                  onPress={() => callMosque(item.phone)}
+                  onPress={() => callMosque(item.phone!)}
                 >
                   <Ionicons name="call" size={20} color="#fff" />
                   <Text style={styles.actionButtonText}>Call</Text>
                 </TouchableOpacity>
               )}
-              
+
               {item.website && (
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[styles.actionButton, styles.actionButtonWebsite]}
-                  onPress={() => openWebsite(item.website)}
+                  onPress={() => openWebsite(item.website!)}
                 >
                   <Ionicons name="globe" size={20} color="#fff" />
                   <Text style={styles.actionButtonText}>Website</Text>
@@ -358,9 +379,9 @@ export default function MosqueLocator() {
     );
   };
 
-  const renderRadiusOptions = () => {
-    const options = [5, 10, 20, 50];
-    
+  // --- renderRadiusOptions remains the same ---
+   const renderRadiusOptions = () => {
+    const options = [5, 10, 20, 50]; // Radii in km
     return (
       <View style={styles.radiusContainer}>
         <Text style={styles.radiusLabel}>Search radius:</Text>
@@ -374,7 +395,7 @@ export default function MosqueLocator() {
               ]}
               onPress={() => setSearchRadius(radius)}
             >
-              <Text 
+              <Text
                 style={[
                   styles.radiusButtonText,
                   searchRadius === radius && styles.activeRadiusButtonText
@@ -389,6 +410,7 @@ export default function MosqueLocator() {
     );
   };
 
+
   if (loading && !refreshing) {
     return (
       <View style={styles.center}>
@@ -398,12 +420,12 @@ export default function MosqueLocator() {
     );
   }
 
-  if (errorMsg) {
+  if (errorMsg && !loading) { // Only show error if not also loading
     return (
       <View style={styles.center}>
         <Ionicons name="alert-circle-outline" size={48} color="red" />
         <Text style={styles.errorText}>{errorMsg}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={loadMosques}>
+        <TouchableOpacity style={styles.retryButton} onPress={() => loadMosques()}>
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -412,41 +434,45 @@ export default function MosqueLocator() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Nearby Mosques</Text>
-      
+      {/* <Text style={styles.title}>Nearby Mosques</Text> */}
+      {/* Title is now in the header from _layout.tsx, so we might not need it here */}
+
       {renderRadiusOptions()}
-      
+
       {location && (
         <Text style={styles.locationText}>
           Your location: {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
         </Text>
       )}
-      
-      {mosques.length > 0 ? (
-        <FlatList
-          data={mosques}
-          renderItem={renderMosqueItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={["#e91e63"]}
-            />
-          }
-        />
-      ) : (
+
+      {!loading && mosques.length === 0 && !errorMsg && ( // Show "No results" only if not loading and no error
         <View style={styles.noResultsContainer}>
           <Ionicons name="sad-outline" size={64} color="#999" />
           <Text style={styles.noResultsText}>No mosques found within {searchRadius}km</Text>
-          <Text style={styles.noResultsSubtext}>Try increasing your search radius</Text>
+          <Text style={styles.noResultsSubtext}>Try increasing your search radius or check your connection.</Text>
         </View>
+      )}
+
+      {mosques.length > 0 && (
+          <FlatList
+            data={mosques}
+            renderItem={renderMosqueItem}
+            keyExtractor={(item) => item.id} // Use Google's place_id as key
+            contentContainerStyle={styles.listContainer}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={["#e91e63"]} // Match your theme
+              />
+            }
+          />
       )}
     </View>
   );
 }
 
+// --- Styles remain largely the same, with minor adjustments as needed ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -482,14 +508,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 10,
-    textAlign: 'center',
-    color: '#333',
-  },
+  // title: { // Removed as it's in the header
+  //   fontSize: 24,
+  //   fontWeight: 'bold',
+  //   marginTop: 16,
+  //   marginBottom: 10,
+  //   textAlign: 'center',
+  //   color: '#333',
+  // },
   locationText: {
     fontSize: 12,
     color: '#666',
@@ -550,7 +576,7 @@ const styles = StyleSheet.create({
   },
   expandedMosqueItem: {
     borderLeftWidth: 4,
-    borderLeftColor: '#006400',
+    borderLeftColor: '#006400', // Keep your theme
   },
   mosqueHeader: {
     flexDirection: 'row',
@@ -561,7 +587,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f0f8ff',
+    backgroundColor: '#f0f8ff', // A light, neutral color
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -576,7 +602,7 @@ const styles = StyleSheet.create({
   },
   mosqueDistance: {
     fontSize: 14,
-    color: '#e91e63',
+    color: '#e91e63', // Theme color for distance
     fontWeight: '500',
     marginTop: 2,
   },
@@ -589,7 +615,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
-    backgroundColor: '#fafafa',
+    backgroundColor: '#fafafa', // Slightly different background for expanded area
   },
   prayerTimesContainer: {
     marginBottom: 16,
@@ -600,19 +626,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: '#333',
   },
-  prayerGrid: {
+  prayerGrid: { // Styles for prayer times if you manage to get this data
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
   prayerTime: {
-    width: '48%',
+    width: '48%', // Adjust for layout
     backgroundColor: '#fff',
     padding: 8,
     borderRadius: 6,
     marginBottom: 8,
     borderLeftWidth: 2,
-    borderLeftColor: '#006400',
+    borderLeftColor: '#006400', // Theme
   },
   prayerName: {
     fontSize: 12,
@@ -625,6 +651,11 @@ const styles = StyleSheet.create({
     color: '#333',
     marginTop: 2,
   },
+  detailText: { // For "not available" messages
+    fontSize: 14,
+    color: '#777',
+    fontStyle: 'italic',
+  },
   facilitiesSection: {
     marginBottom: 16,
   },
@@ -632,7 +663,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
-  facilityIcon: {
+  facilityIcon: { // Same as before
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -649,25 +680,25 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around', // Adjusted for potentially fewer buttons
     marginTop: 10,
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#006400',
+    backgroundColor: '#006400', // Main action color
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 6,
-    flex: 1,
+    flexGrow: 1, // Allow buttons to grow
     marginHorizontal: 4,
   },
   actionButtonCall: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#3498db', // Specific color for call
   },
   actionButtonWebsite: {
-    backgroundColor: '#9b59b6',
+    backgroundColor: '#9b59b6', // Specific color for website
   },
   actionButtonText: {
     color: '#fff',
@@ -680,16 +711,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
+    marginTop: 50, // Give some space from header/radius options
   },
   noResultsText: {
     fontSize: 18,
     fontWeight: '600',
     color: '#666',
     marginTop: 16,
+    textAlign: 'center',
   },
   noResultsSubtext: {
     fontSize: 14,
     color: '#999',
     marginTop: 8,
+    textAlign: 'center',
   }
 });
