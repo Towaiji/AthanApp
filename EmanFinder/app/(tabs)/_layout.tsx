@@ -66,6 +66,7 @@ export default function TabsLayout() {
         name="quran"
         options={{
           headerTitle: 'Quran',
+          tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="book-outline" size={24} color={color} />
           ),
