@@ -6,7 +6,7 @@ export default function NotFoundScreen() {
         <>
             <Stack.Screen options={{ title: "404 - Not Found" }} />
             <View style={styles.container}>
-                <Link href="/prayerTimes" style={styles.button}>
+                <Link href="/" style={styles.button}>
                     Go back to Home screen!
                 </Link>
             </View>
