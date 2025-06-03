@@ -17,7 +17,11 @@ import {
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 
-const GOOGLE_PLACES_API_KEY = 'AIzaSyCPT7j2OT_1vO50ybyKQKCoCQNQ58A62MA';  // ← replace with your key
+// Google Places API key is loaded from an environment variable so sensitive
+// values aren't committed to the repository. Create a `.env` file based on the
+// provided example and supply your key there.
+const GOOGLE_PLACES_API_KEY =
+  process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY || '';
 
 const windowWidth = Dimensions.get('window').width;
 
