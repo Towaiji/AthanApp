@@ -10,14 +10,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Copy the example environment file and add your API key (the `.env` file is already in `.gitignore`)
-
-   ```bash
-   cp .env.example .env
-   # edit .env and set EXPO_PUBLIC_GOOGLE_PLACES_API_KEY
-   ```
-
-3. Start the app
+2. Start the app
 
    ```bash
    npx expo start
