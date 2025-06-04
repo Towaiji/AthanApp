@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import { colors } from '../../constants/colors';
 
 const Settings = () => {
   // Notification settings
@@ -66,7 +67,7 @@ const Settings = () => {
       {/* Notifications Section */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="notifications-outline" size={24} color="#e91e63" />
+          <Ionicons name="notifications-outline" size={24} color={colors.accent} />
           <Text style={styles.sectionTitle}>Notifications</Text>
         </View>
 
@@ -75,7 +76,7 @@ const Settings = () => {
           <Switch
             onValueChange={() => setNotificationsEnabled(prev => !prev)}
             value={notificationsEnabled}
-            trackColor={{ false: "#d3d3d3", true: "#e91e63" }}
+            trackColor={{ false: "#d3d3d3", true: colors.accent }}
             thumbColor={notificationsEnabled ? "#fff" : "#f4f3f4"}
           />
         </View>
@@ -87,7 +88,7 @@ const Settings = () => {
               <Switch
                 onValueChange={() => setPrayerAlerts(prev => !prev)}
                 value={prayerAlerts}
-                trackColor={{ false: "#d3d3d3", true: "#e91e63" }}
+                trackColor={{ false: "#d3d3d3", true: colors.accent }}
                 thumbColor={prayerAlerts ? "#fff" : "#f4f3f4"}
               />
             </View>
@@ -118,7 +119,7 @@ const Settings = () => {
       {/* Prayer Calculation Method */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="calculator-outline" size={24} color="#e91e63" />
+          <Ionicons name="calculator-outline" size={24} color={colors.accent} />
           <Text style={styles.sectionTitle}>Prayer Calculation</Text>
         </View>
 
@@ -164,7 +165,7 @@ const Settings = () => {
       {/* Appearance */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="color-palette-outline" size={24} color="#e91e63" />
+          <Ionicons name="color-palette-outline" size={24} color={colors.accent} />
           <Text style={styles.sectionTitle}>Appearance</Text>
         </View>
 
@@ -173,7 +174,7 @@ const Settings = () => {
           <Switch
             onValueChange={() => setUseDarkMode(prev => !prev)}
             value={useDarkMode}
-            trackColor={{ false: "#d3d3d3", true: "#e91e63" }}
+            trackColor={{ false: "#d3d3d3", true: colors.accent }}
             thumbColor={useDarkMode ? "#fff" : "#f4f3f4"}
           />
         </View>
@@ -182,7 +183,7 @@ const Settings = () => {
       {/* Language */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="language-outline" size={24} color="#e91e63" />
+          <Ionicons name="language-outline" size={24} color={colors.accent} />
           <Text style={styles.sectionTitle}>Language</Text>
         </View>
 
@@ -228,7 +229,7 @@ const Settings = () => {
       {/* Location */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="location-outline" size={24} color="#e91e63" />
+          <Ionicons name="location-outline" size={24} color={colors.accent} />
           <Text style={styles.sectionTitle}>Location Settings</Text>
         </View>
 
@@ -237,7 +238,7 @@ const Settings = () => {
           <Switch
             onValueChange={() => setUseAutoLocation(prev => !prev)}
             value={useAutoLocation}
-            trackColor={{ false: "#d3d3d3", true: "#e91e63" }}
+            trackColor={{ false: "#d3d3d3", true: colors.accent }}
             thumbColor={useAutoLocation ? "#fff" : "#f4f3f4"}
           />
         </View>
@@ -256,7 +257,7 @@ const Settings = () => {
       {/* About & Support */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="information-circle-outline" size={24} color="#e91e63" />
+          <Ionicons name="information-circle-outline" size={24} color={colors.accent} />
           <Text style={styles.sectionTitle}>About & Support</Text>
         </View>
 
@@ -304,7 +305,7 @@ const Settings = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff7fe',
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 28,
@@ -401,7 +402,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   saveButton: {
-    backgroundColor: '#e91e63',
+    backgroundColor: colors.accent,
   },
   resetButton: {
     backgroundColor: '#f5f5f5',

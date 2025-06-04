@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import { colors } from '../../constants/colors';
 
 // Function to format time in a readable format
 const formatTime = (timeString: string) => {
@@ -232,7 +233,7 @@ export default function PrayerTimes() {
   if (loading && !refreshing) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#e91e63" />
+        <ActivityIndicator size="large" color={colors.accent} />
         <Text style={styles.loadingText}>Loading prayer times...</Text>
       </View>
     );
@@ -241,7 +242,7 @@ export default function PrayerTimes() {
   if (error) {
     return (
       <View style={styles.center}>
-        <Ionicons name="alert-circle-outline" size={48} color="red" />
+        <Ionicons name="alert-circle-outline" size={48} color={colors.error} />
         <Text style={styles.errorText}>{error}</Text>
         <Text style={styles.retryText} onPress={fetchData}>Tap to retry</Text>
       </View>
@@ -255,7 +256,7 @@ export default function PrayerTimes() {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          colors={["#e91e63"]}
+          colors={[colors.accent]}
         />
       }
     >
@@ -296,7 +297,7 @@ export default function PrayerTimes() {
             >
               <View style={styles.prayerIconContainer}>
                 {isCurrent ? (
-                  <Ionicons name="time" size={24} color="#e91e63" />
+                  <Ionicons name="time" size={24} color={colors.accent} />
                 ) : prayer === 'Fajr' ? (
                   <Ionicons name="sunny-outline" size={24} color="#FF9800" />
                 ) : prayer === 'Sunrise' ? (
@@ -352,13 +353,13 @@ export default function PrayerTimes() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff7fe',
+    backgroundColor: colors.background,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff7fe',
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 10,
@@ -367,14 +368,14 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: 'red',
+    color: colors.error,
     textAlign: 'center',
     marginTop: 10,
     paddingHorizontal: 20,
   },
   retryText: {
     fontSize: 16,
-    color: '#e91e63',
+    color: colors.accent,
     marginTop: 20,
     fontWeight: 'bold',
   },
@@ -419,7 +420,7 @@ const styles = StyleSheet.create({
   nextPrayerName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#e91e63',
+    color: colors.accent,
   },
   nextPrayerTime: {
     fontSize: 36,
@@ -453,7 +454,7 @@ const styles = StyleSheet.create({
   currentPrayer: {
     backgroundColor: '#FAE3EB',
     borderLeftWidth: 4,
-    borderLeftColor: '#e91e63',
+    borderLeftColor: colors.accent,
   },
   nextPrayerRow: {
     backgroundColor: '#f0f0f0',
@@ -475,7 +476,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   currentText: {
-    color: '#e91e63',
+    color: colors.accent,
     fontWeight: 'bold',
   },
   nextText: {
@@ -483,7 +484,7 @@ const styles = StyleSheet.create({
   },
   currentBadge: {
     fontSize: 12,
-    color: '#e91e63',
+    color: colors.accent,
     fontStyle: 'italic',
   },
   locationInfo: {

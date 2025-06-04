@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { QiblaFinder } from 'react-native-qibla-finder';
+import { colors } from '../../constants/colors';
 
 export default function QiblaCompassScreen() {
   return (
@@ -16,7 +17,7 @@ export default function QiblaCompassScreen() {
         // Color & size of the loading spinner
         showLoadingIndicator
         loadingIndicatorSize={60}
-        loadingIndicatorColor="#e91e63"
+        loadingIndicatorColor={colors.accent}
         // Show both compass and Qibla needle
         showCompassDirection
         showQiblaDirection
@@ -33,7 +34,7 @@ export default function QiblaCompassScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff7fe',
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
     height: 300,
   },
   directionText: {
-    color: '#e91e63',
+    color: colors.accent,
     fontSize: 16,
     fontWeight: 'bold',
   },

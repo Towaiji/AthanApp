@@ -1,5 +1,6 @@
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { Link, Stack } from "expo-router";
+import { colors } from "../constants/colors";
 
 export default function NotFoundScreen() {
     return (
@@ -19,14 +20,14 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#efe7ee",
+        backgroundColor: colors.background,
     },
     text: {
         fontSize: 30,
         color: "black",
     },
     button: {
-        backgroundColor: "#4CAF50",
+        backgroundColor: colors.primary,
         padding: 10,
         borderRadius: 5,
         marginTop: 20,

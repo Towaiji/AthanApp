@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../constants/colors';
 
 /**
  * Expanded list of charities (~20 more) across the four causes:
@@ -91,7 +92,7 @@ export default function ZakatScreen() {
           style={styles.item}
           onPress={() => Linking.openURL(option.url)}
         >
-          <Ionicons name="open-outline" size={20} color="#e91e63" style={{ marginRight: 8 }} />
+          <Ionicons name="open-outline" size={20} color={colors.accent} style={{ marginRight: 8 }} />
           <Text style={styles.itemText}>{option.name}</Text>
         </TouchableOpacity>
       ))}
@@ -102,7 +103,7 @@ export default function ZakatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff7fe',
+    backgroundColor: colors.background,
     paddingHorizontal: 16
   },
   title: {
