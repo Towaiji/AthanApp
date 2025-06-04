@@ -32,6 +32,14 @@ const Settings = () => {
   // Location settings
   const [useAutoLocation, setUseAutoLocation] = useState(true);
 
+  // Collapsible sections
+  const [showNotifications, setShowNotifications] = useState(true);
+  const [showCalculation, setShowCalculation] = useState(false);
+  const [showAppearance, setShowAppearance] = useState(false);
+  const [showLanguage, setShowLanguage] = useState(false);
+  const [showLocation, setShowLocation] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
+
   const handleSaveSettings = () => {
     Alert.alert('Settings Saved', 'Your preferences have been updated');
   };
@@ -66,63 +74,88 @@ const Settings = () => {
 
       {/* Notifications Section */}
       <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Ionicons name="notifications-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Notifications</Text>
-        </View>
-
-        <View style={styles.setting}>
-          <Text style={styles.settingText}>Enable Notifications</Text>
-          <Switch
-            onValueChange={() => setNotificationsEnabled(prev => !prev)}
-            value={notificationsEnabled}
-            trackColor={{ false: "#d3d3d3", true: colors.accent }}
-            thumbColor={notificationsEnabled ? "#fff" : "#f4f3f4"}
+        <TouchableOpacity
+          style={styles.sectionHeader}
+          onPress={() => setShowNotifications(!showNotifications)}
+        >
+          <View style={styles.headerLeft}>
+            <Ionicons name="notifications-outline" size={24} color={colors.accent} />
+            <Text style={styles.sectionTitle}>Notifications</Text>
+          </View>
+          <Ionicons
+            name={showNotifications ? "chevron-up" : "chevron-down"}
+            size={20}
+            color="#666"
           />
-        </View>
+        </TouchableOpacity>
 
-        {notificationsEnabled && (
+        {showNotifications && (
           <>
-            <View style={styles.setting}>
-              <Text style={styles.settingText}>Prayer Time Alerts</Text>
-              <Switch
-                onValueChange={() => setPrayerAlerts(prev => !prev)}
-                value={prayerAlerts}
-                trackColor={{ false: "#d3d3d3", true: colors.accent }}
-                thumbColor={prayerAlerts ? "#fff" : "#f4f3f4"}
-              />
-            </View>
+          <View style={styles.setting}>
+            <Text style={styles.settingText}>Enable Notifications</Text>
+            <Switch
+              onValueChange={() => setNotificationsEnabled(prev => !prev)}
+              value={notificationsEnabled}
+              trackColor={{ false: "#d3d3d3", true: colors.accent }}
+              thumbColor={notificationsEnabled ? "#fff" : "#f4f3f4"}
+            />
+          </View>
 
-            <View style={styles.setting}>
-              <Text style={styles.settingText}>Reminder before prayer</Text>
-              <View style={styles.inlinePickerContainer}>
-                <Picker
-                  selectedValue={reminderTime}
-                  style={styles.reminderPicker}   
-                  itemStyle={styles.pickerItem}   
-                  onValueChange={(itemValue) => setReminderTime(itemValue)}
-                  mode="dropdown"
-                >
-                  <Picker.Item label="5 minutes" value="5" />
-                  <Picker.Item label="10 minutes" value="10" />
-                  <Picker.Item label="15 minutes" value="15" />
-                  <Picker.Item label="20 minutes" value="20" />
-                  <Picker.Item label="30 minutes" value="30" />
-                </Picker>
-              </View>
-            </View>
+            {notificationsEnabled && (
+              <>
+                <View style={styles.setting}>
+                  <Text style={styles.settingText}>Prayer Time Alerts</Text>
+                  <Switch
+                    onValueChange={() => setPrayerAlerts(prev => !prev)}
+                    value={prayerAlerts}
+                    trackColor={{ false: "#d3d3d3", true: colors.accent }}
+                    thumbColor={prayerAlerts ? "#fff" : "#f4f3f4"}
+                  />
+                </View>
 
+                <View style={styles.setting}>
+                  <Text style={styles.settingText}>Reminder before prayer</Text>
+                  <View style={styles.inlinePickerContainer}>
+                    <Picker
+                      selectedValue={reminderTime}
+                      style={styles.reminderPicker}
+                      itemStyle={styles.pickerItem}
+                      onValueChange={(itemValue) => setReminderTime(itemValue)}
+                      mode="dropdown"
+                    >
+                      <Picker.Item label="5 minutes" value="5" />
+                      <Picker.Item label="10 minutes" value="10" />
+                      <Picker.Item label="15 minutes" value="15" />
+                      <Picker.Item label="20 minutes" value="20" />
+                      <Picker.Item label="30 minutes" value="30" />
+                    </Picker>
+                  </View>
+                </View>
+
+              </>
+            )}
           </>
         )}
       </View>
 
       {/* Prayer Calculation Method */}
       <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Ionicons name="calculator-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Prayer Calculation</Text>
-        </View>
+        <TouchableOpacity
+          style={styles.sectionHeader}
+          onPress={() => setShowCalculation(!showCalculation)}
+        >
+          <View style={styles.headerLeft}>
+            <Ionicons name="calculator-outline" size={24} color={colors.accent} />
+            <Text style={styles.sectionTitle}>Prayer Calculation</Text>
+          </View>
+          <Ionicons
+            name={showCalculation ? "chevron-up" : "chevron-down"}
+            size={20}
+            color="#666"
+          />
+        </TouchableOpacity>
 
+        {showCalculation && (
         <TouchableOpacity
           style={styles.setting}
           onPress={() => setShowMethodPicker(!showMethodPicker)}
@@ -160,122 +193,177 @@ const Settings = () => {
             </Picker>
           </View>
         )}
+        )}
       </View>
 
       {/* Appearance */}
       <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Ionicons name="color-palette-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Appearance</Text>
-        </View>
-
-        <View style={styles.setting}>
-          <Text style={styles.settingText}>Dark Mode</Text>
-          <Switch
-            onValueChange={() => setUseDarkMode(prev => !prev)}
-            value={useDarkMode}
-            trackColor={{ false: "#d3d3d3", true: colors.accent }}
-            thumbColor={useDarkMode ? "#fff" : "#f4f3f4"}
+        <TouchableOpacity
+          style={styles.sectionHeader}
+          onPress={() => setShowAppearance(!showAppearance)}
+        >
+          <View style={styles.headerLeft}>
+            <Ionicons name="color-palette-outline" size={24} color={colors.accent} />
+            <Text style={styles.sectionTitle}>Appearance</Text>
+          </View>
+          <Ionicons
+            name={showAppearance ? "chevron-up" : "chevron-down"}
+            size={20}
+            color="#666"
           />
-        </View>
+        </TouchableOpacity>
+
+        {showAppearance && (
+          <View style={styles.setting}>
+            <Text style={styles.settingText}>Dark Mode</Text>
+            <Switch
+              onValueChange={() => setUseDarkMode(prev => !prev)}
+              value={useDarkMode}
+              trackColor={{ false: "#d3d3d3", true: colors.accent }}
+              thumbColor={useDarkMode ? "#fff" : "#f4f3f4"}
+            />
+          </View>
+        )}
       </View>
 
       {/* Language */}
       <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Ionicons name="language-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Language</Text>
-        </View>
-
         <TouchableOpacity
-          style={styles.setting}
-          onPress={() => setShowLanguagePicker(!showLanguagePicker)}
+          style={styles.sectionHeader}
+          onPress={() => setShowLanguage(!showLanguage)}
         >
-          <Text style={styles.settingText}>App Language</Text>
-          <View style={styles.valueContainer}>
-            <Text style={styles.valueText}>
-              {appLanguage === 'english' ? 'English' :
-                appLanguage === 'arabic' ? 'العربية' :
-                  appLanguage === 'urdu' ? 'اردو' :
-                    appLanguage === 'french' ? 'Français' :
-                      appLanguage === 'turkish' ? 'Türkçe' :
-                        'English'}
-            </Text>
-            <Ionicons name="chevron-down" size={16} color="#666" />
+          <View style={styles.headerLeft}>
+            <Ionicons name="language-outline" size={24} color={colors.accent} />
+            <Text style={styles.sectionTitle}>Language</Text>
           </View>
+          <Ionicons
+            name={showLanguage ? "chevron-up" : "chevron-down"}
+            size={20}
+            color="#666"
+          />
         </TouchableOpacity>
 
-        {showLanguagePicker && (
-          <View style={styles.expandedSection}>
-            <Picker
-              selectedValue={appLanguage}
-              style={styles.timePicker}
-              itemStyle={styles.pickerItem}
-              onValueChange={(itemValue) => {
-                setAppLanguage(itemValue);
-                setShowLanguagePicker(false);
-              }}
-            >
-              <Picker.Item label="English" value="english" />
-              <Picker.Item label="العربية (Arabic)" value="arabic" />
-              <Picker.Item label="اردو (Urdu)" value="urdu" />
-              <Picker.Item label="Français (French)" value="french" />
-              <Picker.Item label="Türkçe (Turkish)" value="turkish" />
-            </Picker>
-          </View>
+        {showLanguage && (
+          <>
+          <TouchableOpacity
+            style={styles.setting}
+            onPress={() => setShowLanguagePicker(!showLanguagePicker)}
+          >
+            <Text style={styles.settingText}>App Language</Text>
+            <View style={styles.valueContainer}>
+              <Text style={styles.valueText}>
+                {appLanguage === 'english' ? 'English' :
+                  appLanguage === 'arabic' ? 'العربية' :
+                    appLanguage === 'urdu' ? 'اردو' :
+                      appLanguage === 'french' ? 'Français' :
+                        appLanguage === 'turkish' ? 'Türkçe' :
+                          'English'}
+              </Text>
+              <Ionicons name="chevron-down" size={16} color="#666" />
+            </View>
+          </TouchableOpacity>
+
+          {showLanguagePicker && (
+            <View style={styles.expandedSection}>
+              <Picker
+                selectedValue={appLanguage}
+                style={styles.timePicker}
+                itemStyle={styles.pickerItem}
+                onValueChange={(itemValue) => {
+                  setAppLanguage(itemValue);
+                  setShowLanguagePicker(false);
+                }}
+              >
+                <Picker.Item label="English" value="english" />
+                <Picker.Item label="العربية (Arabic)" value="arabic" />
+                <Picker.Item label="اردو (Urdu)" value="urdu" />
+                <Picker.Item label="Français (French)" value="french" />
+                <Picker.Item label="Türkçe (Turkish)" value="turkish" />
+              </Picker>
+            </View>
+          )}
+          </>
         )}
       </View>
 
       {/* Location */}
       <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Ionicons name="location-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Location Settings</Text>
-        </View>
-
-        <View style={styles.setting}>
-          <Text style={styles.settingText}>Use Auto-location</Text>
-          <Switch
-            onValueChange={() => setUseAutoLocation(prev => !prev)}
-            value={useAutoLocation}
-            trackColor={{ false: "#d3d3d3", true: colors.accent }}
-            thumbColor={useAutoLocation ? "#fff" : "#f4f3f4"}
+        <TouchableOpacity
+          style={styles.sectionHeader}
+          onPress={() => setShowLocation(!showLocation)}
+        >
+          <View style={styles.headerLeft}>
+            <Ionicons name="location-outline" size={24} color={colors.accent} />
+            <Text style={styles.sectionTitle}>Location Settings</Text>
+          </View>
+          <Ionicons
+            name={showLocation ? "chevron-up" : "chevron-down"}
+            size={20}
+            color="#666"
           />
-        </View>
+        </TouchableOpacity>
 
-        {!useAutoLocation && (
-          <TouchableOpacity
-            style={styles.setting}
-            onPress={() => Alert.alert('Set Manual Location', 'This would open a location picker')}
-          >
-            <Text style={styles.settingText}>Set Manual Location</Text>
-            <Ionicons name="chevron-forward" size={20} color="#666" />
-          </TouchableOpacity>
+        {showLocation && (
+          <>
+          <View style={styles.setting}>
+            <Text style={styles.settingText}>Use Auto-location</Text>
+            <Switch
+              onValueChange={() => setUseAutoLocation(prev => !prev)}
+              value={useAutoLocation}
+              trackColor={{ false: "#d3d3d3", true: colors.accent }}
+              thumbColor={useAutoLocation ? "#fff" : "#f4f3f4"}
+            />
+          </View>
+
+          {!useAutoLocation && (
+            <TouchableOpacity
+              style={styles.setting}
+              onPress={() => Alert.alert('Set Manual Location', 'This would open a location picker')}
+            >
+              <Text style={styles.settingText}>Set Manual Location</Text>
+              <Ionicons name="chevron-forward" size={20} color="#666" />
+            </TouchableOpacity>
+          )}
+          </>
         )}
       </View>
 
       {/* About & Support */}
       <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Ionicons name="information-circle-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>About & Support</Text>
-        </View>
-
         <TouchableOpacity
-          style={styles.setting}
-          onPress={() => Alert.alert('About', 'Islamic Prayer App v1.0.0')}
+          style={styles.sectionHeader}
+          onPress={() => setShowAbout(!showAbout)}
         >
-          <Text style={styles.settingText}>About this App</Text>
-          <Ionicons name="chevron-forward" size={20} color="#666" />
+          <View style={styles.headerLeft}>
+            <Ionicons name="information-circle-outline" size={24} color={colors.accent} />
+            <Text style={styles.sectionTitle}>About & Support</Text>
+          </View>
+          <Ionicons
+            name={showAbout ? "chevron-up" : "chevron-down"}
+            size={20}
+            color="#666"
+          />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.setting}
-          onPress={() => Alert.alert('Help & Support', 'For assistance, please contact support@prayerapp.com')}
-        >
-          <Text style={styles.settingText}>Help & Support</Text>
-          <Ionicons name="chevron-forward" size={20} color="#666" />
-        </TouchableOpacity>
+        {showAbout && (
+          <>
+          <TouchableOpacity
+            style={styles.setting}
+            onPress={() => Alert.alert('About', 'Islamic Prayer App v1.0.0')}
+          >
+            <Text style={styles.settingText}>About this App</Text>
+            <Ionicons name="chevron-forward" size={20} color="#666" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.setting}
+            onPress={() => Alert.alert('Help & Support', 'For assistance, please contact support@prayerapp.com')}
+          >
+            <Text style={styles.settingText}>Help & Support</Text>
+            <Ionicons name="chevron-forward" size={20} color="#666" />
+          </TouchableOpacity>
+          </>
+        )}
       </View>
 
       {/* Action Buttons */}
@@ -310,8 +398,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 20,
+    marginTop: 20,
+    marginBottom: 30,
     paddingHorizontal: 16,
   },
   section: {
@@ -328,12 +416,17 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
     backgroundColor: '#fefefe',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   sectionTitle: {
     fontSize: 18,
