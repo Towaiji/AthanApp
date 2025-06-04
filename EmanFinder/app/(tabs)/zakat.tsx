@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../constants/colors';
 
@@ -64,6 +63,13 @@ const donationOptions: Record<string, { name: string; url: string }[]> = {
   ]
 };
 
+const causeOptions = [
+  { key: 'hunger', label: 'Hunger Relief', icon: 'restaurant-outline' },
+  { key: 'palestine', label: 'Palestine', icon: 'flag-outline' },
+  { key: 'quran', label: "Donate Qur'an", icon: 'book-outline' },
+  { key: 'war', label: 'War Relief', icon: 'shield-outline' }
+] as const;
+
 export default function ZakatScreen() {
   const [cause, setCause] = useState<keyof typeof donationOptions>('hunger');
 
@@ -71,19 +77,25 @@ export default function ZakatScreen() {
     <ScrollView style={styles.container} contentContainerStyle={{ paddingVertical: 20 }}>
       <Text style={styles.title}>Find a Charity</Text>
 
-      <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Select Cause</Text>
-        <Picker
-          selectedValue={cause}
-          onValueChange={(itemValue) => setCause(itemValue)}
-          style={styles.picker}
-          itemStyle={styles.pickerItem}
-        >
-          <Picker.Item label="Hunger Relief" value="hunger" />
-          <Picker.Item label="Palestine" value="palestine" />
-          <Picker.Item label="Donate Qur'an" value="quran" />
-          <Picker.Item label="War Relief" value="war" />
-        </Picker>
+      <Text style={styles.label}>Select Cause</Text>
+      <View style={styles.causeBar}>
+        {causeOptions.map((opt) => (
+          <TouchableOpacity
+            key={opt.key}
+            style={[styles.causeButton, cause === opt.key && styles.causeButtonActive]}
+            onPress={() => setCause(opt.key as keyof typeof donationOptions)}
+          >
+            <Ionicons
+              name={opt.icon as any}
+              size={16}
+              color={cause === opt.key ? '#fff' : colors.accent}
+              style={{ marginRight: 6 }}
+            />
+            <Text style={[styles.causeText, cause === opt.key && styles.causeTextActive]}>
+              {opt.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {donationOptions[cause].map((option) => (
@@ -113,21 +125,37 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#333'
   },
-  pickerContainer: {
-    marginBottom: 20
+  causeBar: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 16,
   },
   label: {
     fontSize: 16,
     marginBottom: 8,
     color: '#333'
   },
-  picker: {
+  causeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 8
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginBottom: 8,
+    elevation: 1,
   },
-  pickerItem: {
-    fontSize: 16,
-    color: '#333'
+  causeButtonActive: {
+    backgroundColor: colors.accent,
+  },
+  causeText: {
+    fontSize: 14,
+    color: colors.accent,
+  },
+  causeTextActive: {
+    color: '#fff',
+    fontWeight: '600',
   },
   item: {
     flexDirection: 'row',
