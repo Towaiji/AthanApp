@@ -1,16 +1,17 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
+import { colors } from "../../constants/colors";
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
-        tabBarActiveTintColor: "#e91e63",  // You can adjust the color to match your theme
+        tabBarActiveTintColor: colors.accent,  // You can adjust the color to match your theme
         tabBarInactiveTintColor: "#000",  // Adjust color
         tabBarStyle: {
-          backgroundColor: "#fff7fe",  // Background color of the tab bar
+          backgroundColor: colors.background,  // Background color of the tab bar
           borderTopWidth: 0,
         },
         tabBarLabelStyle: {
@@ -22,7 +23,7 @@ export default function TabsLayout() {
           marginBottom: 5,
         },
         headerStyle: {
-          backgroundColor: "#fff7fe",  // Header background color
+          backgroundColor: colors.background,  // Header background color
         },
       }}
     >

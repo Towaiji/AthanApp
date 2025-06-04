@@ -2,6 +2,7 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
+import { colors } from '../../constants/colors'
 
 export default function QuranScreen() {
   return (
@@ -17,6 +18,6 @@ export default function QuranScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff7fe' },
+  container: { flex: 1, backgroundColor: colors.background },
   webview: { flex: 1 }
 })

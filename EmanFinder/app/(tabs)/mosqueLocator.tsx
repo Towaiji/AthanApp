@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from '../../constants/colors';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyCPT7j2OT_1vO50ybyKQKCoCQNQ58A62MA';  // ← replace with your key
 
@@ -162,7 +163,7 @@ export default function MosqueLocator() {
     return (
       <TouchableOpacity style={styles.item} onPress={() => openGoogleMaps(item.address, item.latitude, item.longitude)}>
         <View style={styles.header}>
-          <Ionicons name="navigate-outline" size={28} color="#e91e63" style={{ marginRight: 12 }} />
+          <Ionicons name="navigate-outline" size={28} color={colors.accent} style={{ marginRight: 12 }} />
           <View style={{ flex: 1 }}>
             <Text style={styles.name}>{item.name}</Text>
             <Text style={styles.sub}>{dist}  •  {item.address}</Text>
@@ -195,7 +196,7 @@ export default function MosqueLocator() {
       )}
 
       {loading && !refreshing && (
-        <ActivityIndicator size="large" color="#e91e63" style={{ marginTop: 40 }} />
+        <ActivityIndicator size="large" color={colors.accent} style={{ marginTop: 40 }} />
       )}
 
       {error && !loading && (
@@ -214,7 +215,7 @@ export default function MosqueLocator() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#e91e63']}
+            colors={[colors.accent]}
           />
         }
         contentContainerStyle={{ paddingBottom: 20 }}
@@ -224,21 +225,21 @@ export default function MosqueLocator() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff7fe' },
+  container: { flex: 1, backgroundColor: colors.background },
   radiusBar: { flexDirection: 'row', justifyContent: 'center', padding: 8 },
   radBtn: {
     paddingHorizontal: 12, paddingVertical: 6, marginHorizontal: 4,
     borderWidth: 1, borderColor: '#ddd', borderRadius: 20, backgroundColor: '#f0f0f0'
   },
   radBtnActive: {
-    backgroundColor: '#e91e63', borderColor: '#e91e63'
+    backgroundColor: colors.accent, borderColor: colors.accent
   },
   radTxt: { fontSize: 14, color: '#666' },
   radTxtActive: { color: '#fff', fontWeight: '600' },
 
   locText: { textAlign: 'center', color: '#666', marginBottom: 8 },
 
-  error: { textAlign: 'center', color: 'red', marginTop: 20 },
+  error: { textAlign: 'center', color: colors.error, marginTop: 20 },
 
   item: {
     marginHorizontal: 16, marginVertical: 6,
