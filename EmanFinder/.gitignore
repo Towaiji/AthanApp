@@ -43,5 +43,3 @@ app-example
 .env.*
 !.env.example
 
-# Ignore specific files with API keys
-mosqueLocator.tsx

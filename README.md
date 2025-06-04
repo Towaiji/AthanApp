@@ -31,6 +31,7 @@ A mobile application built with Expo and React Native for daily Islamic practice
 ```bash
 cd EmanFinder
 npm install
+npx cp .env.example .env # then edit with your Google Places API key
 npx expo start
 ```
 
