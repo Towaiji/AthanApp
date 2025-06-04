@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   currentPrayer: {
-    backgroundColor: '#FAE3EB',
+    backgroundColor: '#F6ECD9',
     borderLeftWidth: 4,
     borderLeftColor: colors.accent,
   },
