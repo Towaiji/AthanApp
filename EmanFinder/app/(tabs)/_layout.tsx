@@ -72,6 +72,17 @@ export default function TabsLayout() {
           ),
         }}
       />
+      {/* Zakat Tab */}
+      <Tabs.Screen
+        name="zakat"
+        options={{
+          headerTitle: 'Zakat',
+          tabBarShowLabel: false,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="cash-outline" size={24} color={color} />
+          ),
+        }}
+      />
       {/* Settings Tab */}
       <Tabs.Screen
         name="settings"
