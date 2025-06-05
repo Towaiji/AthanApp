@@ -367,7 +367,12 @@ const createStyles = (colors: Colors) => StyleSheet.create({
   },
   expandedSection: {
     paddingHorizontal: 16,
+    paddingVertical: 8,
     backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    marginBottom: 12,
   },
   pickerContainer: {
     flexDirection: 'row',
@@ -375,17 +380,23 @@ const createStyles = (colors: Colors) => StyleSheet.create({
   },
   inlinePickerContainer: {
     width: 150,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: colors.card,
   },
   reminderPicker: {
     width: '100%',
     height: 200,
     color: colors.text,
+    backgroundColor: colors.card,
   },
   timePicker: {
     width: '100%',
     height: 150,
     color: colors.text,
-    backgroundColor: 'transparent',
+    backgroundColor: colors.card,
   },
   pickerItem: {
     color: colors.picker,
