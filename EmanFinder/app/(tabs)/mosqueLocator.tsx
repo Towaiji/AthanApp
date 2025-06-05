@@ -11,17 +11,15 @@ import {
   RefreshControl,
   Linking,
   Platform,
-  Alert,
-  Dimensions
+  Alert
 } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Colors } from '../../constants/colors';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyCPT7j2OT_1vO50ybyKQKCoCQNQ58A62MA';  // ← replace with your key
-
-const windowWidth = Dimensions.get('window').width;
 
 interface Mosque {
   id: string;
@@ -124,6 +122,7 @@ export default function MosqueLocator() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [radius, setRadius] = useState(10);
+  const [showMap, setShowMap] = useState(false);
   const lastRefresh = useRef(0);
 
   const load = async (isRefresh = false) => {
@@ -190,6 +189,16 @@ export default function MosqueLocator() {
             <Text style={[ styles.radTxt, radius===r && styles.radTxtActive ]}>{r} km</Text>
           </TouchableOpacity>
         ))}
+        <TouchableOpacity
+          style={[styles.radBtn, showMap && styles.radBtnActive]}
+          onPress={() => setShowMap(!showMap)}
+        >
+          <Ionicons
+            name={showMap ? 'list' : 'map'}
+            size={20}
+            color={showMap ? '#fff' : colors.textSecondary}
+          />
+        </TouchableOpacity>
       </View>
 
       {location && (
@@ -210,19 +219,44 @@ export default function MosqueLocator() {
         <Text style={styles.error}>No mosques within {radius} km</Text>
       )}
 
-      <FlatList
-        data={mosques}
-        keyExtractor={i => i.id}
-        renderItem={renderItem}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[colors.accent]}
-          />
-        }
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+      {showMap ? (
+        <MapView
+          style={styles.map}
+          showsUserLocation
+          region={location ? {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          } : undefined}
+        >
+          {mosques.map(m => (
+            m.latitude && m.longitude ? (
+              <Marker
+                key={m.id}
+                coordinate={{ latitude: m.latitude, longitude: m.longitude }}
+                title={m.name}
+                description={m.address}
+                onCalloutPress={() => openGoogleMaps(m.address, m.latitude, m.longitude)}
+              />
+            ) : null
+          ))}
+        </MapView>
+      ) : (
+        <FlatList
+          data={mosques}
+          keyExtractor={i => i.id}
+          renderItem={renderItem}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.accent]}
+            />
+          }
+          contentContainerStyle={{ paddingBottom: 20 }}
+        />
+      )}
     </View>
   );
 }
@@ -249,6 +283,8 @@ const createStyles = (colors: Colors) => StyleSheet.create({
   locText: { textAlign: 'center', color: colors.textSecondary, marginBottom: 8 },
 
   error: { textAlign: 'center', color: colors.error, marginTop: 20 },
+
+  map: { flex: 1 },
 
   item: {
     marginHorizontal: 16,
