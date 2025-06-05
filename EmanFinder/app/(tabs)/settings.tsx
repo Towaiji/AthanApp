@@ -51,7 +51,6 @@ const Settings = () => {
             setPrayerAlerts(true);
             setReminderTime('15');
             setCalculationMethod('MWL');
-            setUseDarkMode(false);
             setAppLanguage('english');
             setUseAutoLocation(true);
             Alert.alert('Settings Reset', 'All settings have been reset to default values');
