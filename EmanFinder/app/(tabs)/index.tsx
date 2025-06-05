@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Colors } from '../../constants/colors';
+import { schedulePrayerNotifications } from '../../utils/notifications';
 
 // Function to format time in a readable format
 const formatTime = (timeString: string) => {
@@ -157,6 +158,7 @@ export default function PrayerTimes() {
   const [refreshing, setRefreshing] = useState(false);
   const [islamicDate, setIslamicDate] = useState<string>("Loading...");
   const [locationName, setLocationName] = useState<string>("");
+  const notificationsScheduled = useRef(false);
   
   const fetchData = async () => {
     try {
@@ -198,6 +200,10 @@ export default function PrayerTimes() {
         locationResult.coords.longitude
       );
       setPrayerTimes(times);
+      if (!notificationsScheduled.current) {
+        schedulePrayerNotifications(times);
+        notificationsScheduled.current = true;
+      }
       
       // Fetch Islamic date
       const hijriDate = await getIslamicDate(
