@@ -2,9 +2,12 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { WebView } from 'react-native-webview'
-import { colors } from '../../constants/colors'
+import { useTheme } from '../../contexts/ThemeContext'
+import { Colors } from '../../constants/colors'
 
 export default function QuranScreen() {
+  const { colors } = useTheme();
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.container}>
       {/* you can point this to any Quran reader URL or local HTML */}
@@ -17,7 +20,8 @@ export default function QuranScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: Colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   webview: { flex: 1 }
 })
+
