@@ -4,7 +4,7 @@ import { TouchableOpacity } from "react-native";
 import { useTheme } from "../../contexts/ThemeContext";
 
 export default function TabsLayout() {
-  const { colors } = useTheme();
+  const { colors, isDark, toggleDarkMode } = useTheme();
   return (
     <Tabs
       screenOptions={{
@@ -26,6 +26,7 @@ export default function TabsLayout() {
         headerStyle: {
           backgroundColor: colors.card,
         },
+        headerTintColor: colors.text,
       }}
     >
       {/* Prayer Times Tab */}
