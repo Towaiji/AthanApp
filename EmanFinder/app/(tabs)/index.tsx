@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import { colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Colors } from '../../constants/colors';
 
 // Function to format time in a readable format
 const formatTime = (timeString: string) => {
@@ -147,6 +148,8 @@ const fetchPrayerTimes = async (latitude: number, longitude: number) => {
 };
 
 export default function PrayerTimes() {
+  const { colors } = useTheme();
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
   const [prayerTimes, setPrayerTimes] = useState<{ [key: string]: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -350,7 +353,7 @@ export default function PrayerTimes() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: Colors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -364,7 +367,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
   },
   errorText: {
     fontSize: 16,
@@ -383,27 +386,27 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: colors.border,
   },
   dateText: {
     fontSize: 20,
     fontWeight: '500',
-    color: '#333',
+    color: colors.text,
   },
   islamicDateText: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     marginTop: 4,
   },
   locationNameText: {
     fontSize: 14,
-    color: '#777',
+    color: colors.textSecondary,
     marginTop: 4,
   },
   nextPrayerCard: {
     margin: 16,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: 10,
     alignItems: 'center',
     elevation: 3,
@@ -414,7 +417,7 @@ const styles = StyleSheet.create({
   },
   nextPrayerLabel: {
     fontSize: 14,
-    color: '#666',
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   nextPrayerName: {
@@ -425,12 +428,12 @@ const styles = StyleSheet.create({
   nextPrayerTime: {
     fontSize: 36,
     fontWeight: '500',
-    color: '#333',
+    color: colors.text,
     marginTop: 4,
   },
   countdownText: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     marginTop: 8,
   },
   prayerTimesContainer: {
@@ -440,7 +443,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 16,
-    color: '#333',
+    color: colors.text,
   },
   timeRow: {
     flexDirection: 'row',
@@ -449,15 +452,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 8,
     marginBottom: 8,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
   },
   currentPrayer: {
-    backgroundColor: '#F6ECD9',
+    backgroundColor: colors.highlight,
     borderLeftWidth: 4,
     borderLeftColor: colors.accent,
   },
   nextPrayerRow: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: colors.border,
   },
   prayerIconContainer: {
     marginRight: 12,
@@ -468,11 +471,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     flex: 1,
-    color: '#333',
+    color: colors.text,
   },
   time: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   currentText: {
@@ -493,11 +496,12 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textSecondary,
   },
   apiCreditText: {
     fontSize: 10,
-    color: '#999',
+    color: colors.textSecondary,
     marginTop: 4,
   },
 });
+

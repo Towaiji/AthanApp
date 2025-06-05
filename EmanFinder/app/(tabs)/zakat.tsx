@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Colors } from '../../constants/colors';
 
 /**
  * Expanded list of charities (~20 more) across the four causes:
@@ -71,6 +72,8 @@ const causeOptions = [
 ] as const;
 
 export default function ZakatScreen() {
+  const { colors } = useTheme();
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
   const [cause, setCause] = useState<keyof typeof donationOptions>('hunger');
 
   return (
@@ -112,7 +115,7 @@ export default function ZakatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: Colors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -123,7 +126,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
-    color: '#333'
+    color: colors.text
   },
   causeBar: {
     flexDirection: 'row',
@@ -133,12 +136,12 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 8,
-    color: '#333'
+    color: colors.text
   },
   causeButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -161,7 +164,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: 10,
     marginBottom: 12,
     elevation: 2,
@@ -172,6 +175,7 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
-    color: '#333'
+    color: colors.text
   }
 });
+
