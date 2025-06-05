@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { Colors } from '../../constants/colors';
 
 const Settings = () => {
@@ -28,7 +29,7 @@ const Settings = () => {
   // Appearance handled by theme context
 
   // Language settings
-  const [appLanguage, setAppLanguage] = useState('english');
+  const { language, setLanguage, t } = useLanguage();
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
 
   // Location settings
@@ -51,7 +52,7 @@ const Settings = () => {
             setPrayerAlerts(true);
             setReminderTime('15');
             setCalculationMethod('MWL');
-            setAppLanguage('english');
+            setLanguage('english');
             setUseAutoLocation(true);
             Alert.alert('Settings Reset', 'All settings have been reset to default values');
           },
@@ -63,17 +64,17 @@ const Settings = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
+      <Text style={styles.title}>{t('settings')}</Text>
 
       {/* Notifications Section */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Ionicons name="notifications-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Notifications</Text>
+          <Text style={styles.sectionTitle}>{t('notifications')}</Text>
         </View>
 
         <View style={styles.setting}>
-          <Text style={styles.settingText}>Enable Notifications</Text>
+          <Text style={styles.settingText}>{t('enableNotifications')}</Text>
           <Switch
             onValueChange={() => setNotificationsEnabled(prev => !prev)}
             value={notificationsEnabled}
@@ -85,7 +86,7 @@ const Settings = () => {
         {notificationsEnabled && (
           <>
             <View style={styles.setting}>
-              <Text style={styles.settingText}>Prayer Time Alerts</Text>
+              <Text style={styles.settingText}>{t('prayerAlerts')}</Text>
               <Switch
                 onValueChange={() => setPrayerAlerts(prev => !prev)}
                 value={prayerAlerts}
@@ -95,7 +96,7 @@ const Settings = () => {
             </View>
 
             <View style={styles.setting}>
-              <Text style={styles.settingText}>Reminder before prayer</Text>
+              <Text style={styles.settingText}>{t('reminderBeforePrayer')}</Text>
               <View style={styles.inlinePickerContainer}>
                 <Picker
                   selectedValue={reminderTime}
@@ -121,14 +122,14 @@ const Settings = () => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Ionicons name="calculator-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Prayer Calculation</Text>
+          <Text style={styles.sectionTitle}>{t('prayerCalculation')}</Text>
         </View>
 
         <TouchableOpacity
           style={styles.setting}
           onPress={() => setShowMethodPicker(!showMethodPicker)}
         >
-          <Text style={styles.settingText}>Calculation Method</Text>
+          <Text style={styles.settingText}>{t('calculationMethod')}</Text>
           <View style={styles.valueContainer}>
             <Text style={styles.valueText}>
               {calculationMethod === 'MWL' ? 'Muslim World League' :
@@ -167,11 +168,11 @@ const Settings = () => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Ionicons name="color-palette-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Appearance</Text>
+          <Text style={styles.sectionTitle}>{t('appearance')}</Text>
         </View>
 
         <View style={styles.setting}>
-          <Text style={styles.settingText}>Dark Mode</Text>
+          <Text style={styles.settingText}>{t('darkMode')}</Text>
           <Switch
             onValueChange={toggleDarkMode}
             value={isDark}
@@ -185,21 +186,21 @@ const Settings = () => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Ionicons name="language-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Language</Text>
+          <Text style={styles.sectionTitle}>{t('language')}</Text>
         </View>
 
         <TouchableOpacity
           style={styles.setting}
           onPress={() => setShowLanguagePicker(!showLanguagePicker)}
         >
-          <Text style={styles.settingText}>App Language</Text>
+          <Text style={styles.settingText}>{t('appLanguage')}</Text>
           <View style={styles.valueContainer}>
             <Text style={styles.valueText}>
-              {appLanguage === 'english' ? 'English' :
-                appLanguage === 'arabic' ? 'العربية' :
-                  appLanguage === 'urdu' ? 'اردو' :
-                    appLanguage === 'french' ? 'Français' :
-                      appLanguage === 'turkish' ? 'Türkçe' :
+              {language === 'english' ? 'English' :
+                language === 'arabic' ? 'العربية' :
+                  language === 'urdu' ? 'اردو' :
+                    language === 'french' ? 'Français' :
+                      language === 'turkish' ? 'Türkçe' :
                         'English'}
             </Text>
             <Ionicons name="chevron-down" size={16} color="#666" />
@@ -209,11 +210,11 @@ const Settings = () => {
         {showLanguagePicker && (
           <View style={styles.expandedSection}>
             <Picker
-              selectedValue={appLanguage}
+              selectedValue={language}
               style={styles.timePicker}
               itemStyle={styles.pickerItem}
               onValueChange={(itemValue) => {
-                setAppLanguage(itemValue);
+                setLanguage(itemValue);
                 setShowLanguagePicker(false);
               }}
             >
@@ -231,11 +232,11 @@ const Settings = () => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Ionicons name="location-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Location Settings</Text>
+          <Text style={styles.sectionTitle}>{t('locationSettings')}</Text>
         </View>
 
         <View style={styles.setting}>
-          <Text style={styles.settingText}>Use Auto-location</Text>
+          <Text style={styles.settingText}>{t('useAutoLocation')}</Text>
           <Switch
             onValueChange={() => setUseAutoLocation(prev => !prev)}
             value={useAutoLocation}
@@ -249,7 +250,7 @@ const Settings = () => {
             style={styles.setting}
             onPress={() => Alert.alert('Set Manual Location', 'This would open a location picker')}
           >
-            <Text style={styles.settingText}>Set Manual Location</Text>
+            <Text style={styles.settingText}>{t('setManualLocation')}</Text>
             <Ionicons name="chevron-forward" size={20} color="#666" />
           </TouchableOpacity>
         )}
@@ -259,14 +260,14 @@ const Settings = () => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Ionicons name="information-circle-outline" size={24} color={colors.accent} />
-          <Text style={styles.sectionTitle}>About & Support</Text>
+          <Text style={styles.sectionTitle}>{t('aboutSupport')}</Text>
         </View>
 
         <TouchableOpacity
           style={styles.setting}
           onPress={() => Alert.alert('About', 'Islamic Prayer App v1.0.0')}
         >
-          <Text style={styles.settingText}>About this App</Text>
+          <Text style={styles.settingText}>{t('aboutThisApp')}</Text>
           <Ionicons name="chevron-forward" size={20} color="#666" />
         </TouchableOpacity>
 
@@ -274,7 +275,7 @@ const Settings = () => {
           style={styles.setting}
           onPress={() => Alert.alert('Help & Support', 'For assistance, please contact support@prayerapp.com')}
         >
-          <Text style={styles.settingText}>Help & Support</Text>
+          <Text style={styles.settingText}>{t('helpSupport')}</Text>
           <Ionicons name="chevron-forward" size={20} color="#666" />
         </TouchableOpacity>
       </View>
@@ -285,14 +286,14 @@ const Settings = () => {
           style={[styles.button, styles.saveButton]}
           onPress={handleSaveSettings}
         >
-          <Text style={styles.buttonText}>Save Settings</Text>
+          <Text style={styles.buttonText}>{t('saveSettings')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.button, styles.resetButton]}
           onPress={resetToDefaults}
         >
-          <Text style={[styles.buttonText, styles.resetButtonText]}>Reset to Default</Text>
+          <Text style={[styles.buttonText, styles.resetButtonText]}>{t('resetDefault')}</Text>
         </TouchableOpacity>
       </View>
 

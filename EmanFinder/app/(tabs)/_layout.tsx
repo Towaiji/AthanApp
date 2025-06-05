@@ -2,9 +2,11 @@ import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 export default function TabsLayout() {
   const { colors, isDark, toggleDarkMode } = useTheme();
+  const { t } = useLanguage();
   return (
     <Tabs
       screenOptions={{
@@ -33,7 +35,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          headerTitle: "Prayer Times",
+          headerTitle: t('prayerTimes'),
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="alarm" size={24} color={color} />
@@ -45,7 +47,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="mosqueLocator"
         options={{
-          headerTitle: "Find Nearest Mosque",
+          headerTitle: t('findMosque'),
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="location-outline" size={24} color={color} />
@@ -57,7 +59,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="qiblaDirection"
         options={{
-          headerTitle: "Qibla Direction",
+          headerTitle: t('qiblaDirection'),
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="compass" size={24} color={color} />
@@ -68,7 +70,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="quran"
         options={{
-          headerTitle: 'Quran',
+          headerTitle: t('quran'),
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="book-outline" size={24} color={color} />
@@ -79,7 +81,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="zakat"
         options={{
-          headerTitle: 'Zakat',
+          headerTitle: t('zakat'),
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="cash-outline" size={24} color={color} />
@@ -90,7 +92,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          headerTitle: "Settings",
+          headerTitle: t('settingsTab'),
           tabBarShowLabel: false,
           tabBarIcon: ({ color }) => (
             <Ionicons name="settings" size={24} color={color} />
