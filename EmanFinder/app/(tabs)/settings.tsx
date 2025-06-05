@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Colors } from '../../constants/colors';
 
@@ -34,8 +35,41 @@ const Settings = () => {
   // Location settings
   const [useAutoLocation, setUseAutoLocation] = useState(true);
 
-  const handleSaveSettings = () => {
-    Alert.alert('Settings Saved', 'Your preferences have been updated');
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('settings');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setNotificationsEnabled(parsed.notificationsEnabled ?? true);
+          setPrayerAlerts(parsed.prayerAlerts ?? true);
+          setReminderTime(parsed.reminderTime ?? '15');
+          setCalculationMethod(parsed.calculationMethod ?? 'MWL');
+          setAppLanguage(parsed.appLanguage ?? 'english');
+          setUseAutoLocation(parsed.useAutoLocation ?? true);
+        }
+      } catch (e) {
+        console.error('Failed to load settings', e);
+      }
+    };
+    loadSettings();
+  }, []);
+
+  const handleSaveSettings = async () => {
+    const data = {
+      notificationsEnabled,
+      prayerAlerts,
+      reminderTime,
+      calculationMethod,
+      appLanguage,
+      useAutoLocation,
+    };
+    try {
+      await AsyncStorage.setItem('settings', JSON.stringify(data));
+      Alert.alert('Settings Saved', 'Your preferences have been updated');
+    } catch (e) {
+      console.error('Failed to save settings', e);
+    }
   };
 
   const resetToDefaults = () => {
@@ -53,6 +87,17 @@ const Settings = () => {
             setCalculationMethod('MWL');
             setAppLanguage('english');
             setUseAutoLocation(true);
+            AsyncStorage.setItem(
+              'settings',
+              JSON.stringify({
+                notificationsEnabled: true,
+                prayerAlerts: true,
+                reminderTime: '15',
+                calculationMethod: 'MWL',
+                appLanguage: 'english',
+                useAutoLocation: true,
+              })
+            );
             Alert.alert('Settings Reset', 'All settings have been reset to default values');
           },
           style: 'destructive'
