@@ -8,9 +8,11 @@ A mobile application built with Expo and React Native for daily Islamic practice
   - Gets prayer timings from the Aladhan API based on your current location
   - Shows the current and next prayer with a countdown timer
   - Pull down to refresh the timings
-- **Mosque Locator**
-  - Finds nearby mosques using the Google Places API
-  - Supports opening directions in Google Maps
+  - **Mosque Locator**
+    - Finds nearby mosques using the Google Places API
+    - Toggle between list and map views with markers
+    - Search any location to see nearby mosques
+    - Supports opening directions in Google Maps
 - **Qibla Direction**
   - Uses `react-native-qibla-finder` to display a compass pointing to the Qibla
 - **Quran Reader**

@@ -25,6 +25,11 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Mosque Locator
+
+The mosque locator screen lists nearby mosques based on your current location. Use the radius buttons to change search distance.
+Tap the map icon to switch between a list and a map view with markers. Selecting a mosque opens navigation in Google Maps.
+
 ## Get a fresh project
 
 When you're ready, run:

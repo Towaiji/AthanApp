@@ -16,11 +16,11 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { colors } from '../../constants/colors';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyCPT7j2OT_1vO50ybyKQKCoCQNQ58A62MA';  // ← replace with your key
-
-const windowWidth = Dimensions.get('window').width;
 
 interface Mosque {
   id: string;
@@ -121,19 +121,24 @@ export default function MosqueLocator() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [radius, setRadius] = useState(10);
+  const [showMap, setShowMap] = useState(false);
   const lastRefresh = useRef(0);
 
-  const load = async (isRefresh = false) => {
+  const load = async (isRefresh = false, coords?: { latitude: number; longitude: number }) => {
     if (!isRefresh) setLoading(true);
     setError(null);
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        throw new Error('Location permission denied');
+      let locCoords = coords;
+      if (!locCoords) {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          throw new Error('Location permission denied');
+        }
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        locCoords = loc.coords;
       }
-      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      setLocation(loc.coords);
-      const list = await fetchNearby(loc.coords.latitude, loc.coords.longitude, radius);
+      setLocation(locCoords as any);
+      const list = await fetchNearby(locCoords.latitude, locCoords.longitude, radius);
       setMosques(list);
       lastRefresh.current = Date.now();
     } catch (err: any) {
@@ -177,7 +182,26 @@ export default function MosqueLocator() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.radiusBar}>
+      <View style={styles.searchBox}>
+        <GooglePlacesAutocomplete
+          placeholder="Search location"
+          fetchDetails
+          onPress={(data, details = null) => {
+            const lat = details?.geometry?.location?.lat;
+            const lng = details?.geometry?.location?.lng;
+            if (lat && lng) {
+              load(false, { latitude: lat, longitude: lng });
+            }
+          }}
+          query={{ key: GOOGLE_PLACES_API_KEY, language: 'en' }}
+          styles={{
+            textInput: styles.searchInput,
+            container: { flex: 0 },
+          }}
+        />
+      </View>
+      <View style={styles.topRow}>
+        <View style={styles.radiusBar}>
         {Radii.map(r => (
           <TouchableOpacity
             key={r}
@@ -187,6 +211,13 @@ export default function MosqueLocator() {
             <Text style={[ styles.radTxt, radius===r && styles.radTxtActive ]}>{r} km</Text>
           </TouchableOpacity>
         ))}
+        </View>
+        <TouchableOpacity
+          style={styles.mapToggle}
+          onPress={() => setShowMap(!showMap)}
+        >
+          <Ionicons name={showMap ? 'list' : 'map'} size={22} color="#fff" />
+        </TouchableOpacity>
       </View>
 
       {location && (
@@ -207,25 +238,52 @@ export default function MosqueLocator() {
         <Text style={styles.error}>No mosques within {radius} km</Text>
       )}
 
-      <FlatList
-        data={mosques}
-        keyExtractor={i => i.id}
-        renderItem={renderItem}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[colors.accent]}
-          />
-        }
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+      {showMap ? (
+        <MapView
+          style={styles.map}
+          provider={PROVIDER_GOOGLE}
+          showsUserLocation
+          initialRegion={location ? {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          } : undefined}
+        >
+          {mosques.map(m => (
+            m.latitude && m.longitude && (
+              <Marker
+                key={m.id}
+                coordinate={{ latitude: m.latitude, longitude: m.longitude }}
+                title={m.name}
+                description={m.address}
+                onCalloutPress={() => openGoogleMaps(m.address, m.latitude, m.longitude)}
+              />
+            )
+          ))}
+        </MapView>
+      ) : (
+        <FlatList
+          data={mosques}
+          keyExtractor={i => i.id}
+          renderItem={renderItem}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.accent]}
+            />
+          }
+          contentContainerStyle={{ paddingBottom: 20 }}
+        />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', padding: 8, alignItems: 'center' },
   radiusBar: { flexDirection: 'row', justifyContent: 'center', padding: 8 },
   radBtn: {
     paddingHorizontal: 12, paddingVertical: 6, marginHorizontal: 4,
@@ -240,6 +298,12 @@ const styles = StyleSheet.create({
   locText: { textAlign: 'center', color: '#666', marginBottom: 8 },
 
   error: { textAlign: 'center', color: colors.error, marginTop: 20 },
+
+  map: { flex: 1 },
+  mapToggle: { backgroundColor: colors.accent, padding: 10, borderRadius: 20 },
+
+  searchBox: { paddingHorizontal: 16, paddingTop: 8 },
+  searchInput: { backgroundColor: '#fff', height: 40, paddingHorizontal: 8, borderRadius: 4 },
 
   item: {
     marginHorizontal: 16, marginVertical: 6,
