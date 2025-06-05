@@ -46,7 +46,7 @@ const Settings = () => {
           setPrayerAlerts(parsed.prayerAlerts ?? true);
           setReminderTime(parsed.reminderTime ?? '15');
           setCalculationMethod(parsed.calculationMethod ?? 'MWL');
-          setAppLanguage(parsed.appLanguage ?? 'english');
+          setLanguage(parsed.language ?? 'english');
           setUseAutoLocation(parsed.useAutoLocation ?? true);
         }
       } catch (e) {
@@ -62,7 +62,7 @@ const Settings = () => {
       prayerAlerts,
       reminderTime,
       calculationMethod,
-      appLanguage,
+      language,
       useAutoLocation,
     };
     try {
@@ -95,7 +95,7 @@ const Settings = () => {
                 prayerAlerts: true,
                 reminderTime: '15',
                 calculationMethod: 'MWL',
-                appLanguage: 'english',
+                language: 'english',
                 useAutoLocation: true,
               })
             );
@@ -238,7 +238,7 @@ const Settings = () => {
           style={styles.setting}
           onPress={() => setShowLanguagePicker(!showLanguagePicker)}
         >
-          <Text style={styles.settingText}>{t('appLanguage')}</Text>
+          <Text style={styles.settingText}>{t('language')}</Text>
           <View style={styles.valueContainer}>
             <Text style={styles.valueText}>
               {language === 'english' ? 'English' :
