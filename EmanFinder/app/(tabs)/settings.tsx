@@ -10,9 +10,12 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import { colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Colors } from '../../constants/colors';
 
 const Settings = () => {
+  const { colors, isDark, toggleDarkMode } = useTheme();
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
   // Notification settings
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [prayerAlerts, setPrayerAlerts] = useState(true);
@@ -22,8 +25,7 @@ const Settings = () => {
   const [calculationMethod, setCalculationMethod] = useState('MWL');
   const [showMethodPicker, setShowMethodPicker] = useState(false);
 
-  // Appearance
-  const [useDarkMode, setUseDarkMode] = useState(false);
+  // Appearance handled by theme context
 
   // Language settings
   const [appLanguage, setAppLanguage] = useState('english');
@@ -49,7 +51,6 @@ const Settings = () => {
             setPrayerAlerts(true);
             setReminderTime('15');
             setCalculationMethod('MWL');
-            setUseDarkMode(false);
             setAppLanguage('english');
             setUseAutoLocation(true);
             Alert.alert('Settings Reset', 'All settings have been reset to default values');
@@ -172,10 +173,10 @@ const Settings = () => {
         <View style={styles.setting}>
           <Text style={styles.settingText}>Dark Mode</Text>
           <Switch
-            onValueChange={() => setUseDarkMode(prev => !prev)}
-            value={useDarkMode}
+            onValueChange={toggleDarkMode}
+            value={isDark}
             trackColor={{ false: "#d3d3d3", true: colors.accent }}
-            thumbColor={useDarkMode ? "#fff" : "#f4f3f4"}
+            thumbColor={isDark ? "#fff" : "#f4f3f4"}
           />
         </View>
       </View>
@@ -302,7 +303,7 @@ const Settings = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: Colors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -316,7 +317,7 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 24,
-    backgroundColor: '#fff',
+    backgroundColor: colors.card,
     borderRadius: 10,
     overflow: 'hidden',
     marginHorizontal: 16,
@@ -332,14 +333,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    backgroundColor: '#fefefe',
+    borderBottomColor: colors.border,
+    backgroundColor: colors.card,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 10,
-    color: '#333',
+    color: colors.text,
   },
   setting: {
     flexDirection: 'row',
@@ -348,11 +349,11 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    borderBottomColor: colors.border,
   },
   settingText: {
     fontSize: 16,
-    color: '#333',
+    color: colors.text,
   },
   valueContainer: {
     flexDirection: 'row',
@@ -360,12 +361,12 @@ const styles = StyleSheet.create({
   },
   valueText: {
     fontSize: 16,
-    color: '#666',
+    color: colors.textSecondary,
     marginRight: 5,
   },
   expandedSection: {
     paddingHorizontal: 16,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: colors.card,
   },
   pickerContainer: {
     flexDirection: 'row',
@@ -377,16 +378,16 @@ const styles = StyleSheet.create({
   reminderPicker: {
     width: '100%',
     height: 200,
-    color: '#333333',
+    color: colors.text,
   },
   timePicker: {
     width: '100%',
     height: 150,
-    color: '#333333',
+    color: colors.text,
     backgroundColor: 'transparent',
   },
   pickerItem: {
-    color: '#333333',
+    color: colors.picker,
     fontSize: 16,
   },
   buttonContainer: {
@@ -405,9 +406,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accent,
   },
   resetButton: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.border,
   },
   buttonText: {
     fontSize: 16,
@@ -415,7 +416,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   resetButtonText: {
-    color: '#666',
+    color: colors.textSecondary,
   },
   footer: {
     alignItems: 'center',
@@ -424,8 +425,9 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: '#999',
+    color: colors.textSecondary,
   },
 });
 
 export default Settings;
+
