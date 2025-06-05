@@ -387,7 +387,7 @@ const createStyles = (colors: Colors) => StyleSheet.create({
     backgroundColor: 'transparent',
   },
   pickerItem: {
-    color: '#333333',
+    color: colors.picker,
     fontSize: 16,
   },
   buttonContainer: {

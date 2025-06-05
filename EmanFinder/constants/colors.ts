@@ -8,6 +8,7 @@ export type Colors = {
   border: string;
   highlight: string;
   error: string;
+  picker: string;
 };
 
 export const lightColors: Colors = {
@@ -20,6 +21,7 @@ export const lightColors: Colors = {
   border: '#f0f0f0',
   highlight: '#F6ECD9',
   error: '#E04E5C',
+  picker: '#333333',
 } as const;
 
 export const darkColors: Colors = {
@@ -32,6 +34,7 @@ export const darkColors: Colors = {
   border: '#333333',
   highlight: '#26322c',
   error: '#E04E5C',
+  picker: '#FFFFFF',
 };
 
 // Default export for compatibility
