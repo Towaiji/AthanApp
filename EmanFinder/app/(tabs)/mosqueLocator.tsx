@@ -16,7 +16,8 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Colors } from '../../constants/colors';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyCPT7j2OT_1vO50ybyKQKCoCQNQ58A62MA';  // ← replace with your key
 
@@ -115,6 +116,8 @@ const openGoogleMaps = (address: string, lat?: number, lng?: number) => {
 };
 
 export default function MosqueLocator() {
+  const { colors } = useTheme();
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState<Location.LocationObjectCoords | null>(null);
   const [mosques, setMosques] = useState<Mosque[]>([]);
@@ -224,30 +227,42 @@ export default function MosqueLocator() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: Colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   radiusBar: { flexDirection: 'row', justifyContent: 'center', padding: 8 },
   radBtn: {
-    paddingHorizontal: 12, paddingVertical: 6, marginHorizontal: 4,
-    borderWidth: 1, borderColor: '#ddd', borderRadius: 20, backgroundColor: '#f0f0f0'
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginHorizontal: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 20,
+    backgroundColor: colors.card,
   },
   radBtnActive: {
-    backgroundColor: colors.accent, borderColor: colors.accent
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
   },
-  radTxt: { fontSize: 14, color: '#666' },
+  radTxt: { fontSize: 14, color: colors.textSecondary },
   radTxtActive: { color: '#fff', fontWeight: '600' },
 
-  locText: { textAlign: 'center', color: '#666', marginBottom: 8 },
+  locText: { textAlign: 'center', color: colors.textSecondary, marginBottom: 8 },
 
   error: { textAlign: 'center', color: colors.error, marginTop: 20 },
 
   item: {
-    marginHorizontal: 16, marginVertical: 6,
-    backgroundColor: '#fff', borderRadius: 10,
-    elevation: 2, shadowColor: '#000', shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 1 }, shadowRadius: 2,
+    marginHorizontal: 16,
+    marginVertical: 6,
+    backgroundColor: colors.card,
+    borderRadius: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 2,
   },
   header: { flexDirection: 'row', alignItems: 'center', padding: 12 },
-  name: { fontSize: 16, fontWeight: '600', color: '#333' },
-  sub: { fontSize: 12, color: '#777', marginTop: 2 }
+  name: { fontSize: 16, fontWeight: '600', color: colors.text },
+  sub: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
 });
+

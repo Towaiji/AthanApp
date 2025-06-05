@@ -1,17 +1,18 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
-import { colors } from "../../constants/colors";
+import { useTheme } from "../../contexts/ThemeContext";
 
 export default function TabsLayout() {
+  const { colors } = useTheme();
   return (
     <Tabs
       screenOptions={{
         headerShown: true,
-        tabBarActiveTintColor: colors.accent,  // You can adjust the color to match your theme
-        tabBarInactiveTintColor: "#000",  // Adjust color
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: colors.background,  // Background color of the tab bar
+          backgroundColor: colors.card,
           borderTopWidth: 0,
         },
         tabBarLabelStyle: {
@@ -23,7 +24,7 @@ export default function TabsLayout() {
           marginBottom: 5,
         },
         headerStyle: {
-          backgroundColor: colors.background,  // Header background color
+          backgroundColor: colors.card,
         },
       }}
     >

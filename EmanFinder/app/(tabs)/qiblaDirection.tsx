@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { QiblaFinder } from 'react-native-qibla-finder';
-import { colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Colors } from '../../constants/colors';
 
 export default function QiblaCompassScreen() {
+  const { colors } = useTheme();
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.container}>
       <QiblaFinder
@@ -31,7 +34,7 @@ export default function QiblaCompassScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: Colors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -48,3 +51,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
