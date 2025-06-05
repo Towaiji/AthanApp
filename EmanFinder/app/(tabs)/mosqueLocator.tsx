@@ -221,6 +221,7 @@ export default function MosqueLocator() {
 
       {showMap ? (
         <MapView
+          provider={MapView.PROVIDER_GOOGLE}
           style={styles.map}
           showsUserLocation
           region={location ? {
