@@ -314,6 +314,7 @@ const createStyles = (colors: Colors) => StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
     paddingHorizontal: 16,
+    color: colors.text,
   },
   section: {
     marginBottom: 24,
