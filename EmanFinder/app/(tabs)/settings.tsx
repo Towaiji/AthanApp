@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Colors } from '../../constants/colors';
@@ -105,6 +106,28 @@ const Settings = () => {
         }
       ]
     );
+  };
+
+  const sendTestNotification = async () => {
+    const { status } = await Notifications.getPermissionsAsync();
+    let finalStatus = status;
+    if (finalStatus !== 'granted') {
+      const request = await Notifications.requestPermissionsAsync();
+      finalStatus = request.status;
+    }
+
+    if (finalStatus !== 'granted') {
+      Alert.alert('Permission required', 'Enable notifications to use this feature');
+      return;
+    }
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Test Notification',
+        body: 'This is a test notification.',
+      },
+      trigger: null,
+    });
   };
 
   return (
@@ -332,6 +355,13 @@ const Settings = () => {
           onPress={handleSaveSettings}
         >
           <Text style={styles.buttonText}>{t('saveSettings')}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, styles.saveButton]}
+          onPress={sendTestNotification}
+        >
+          <Text style={styles.buttonText}>{t('testNotification')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
