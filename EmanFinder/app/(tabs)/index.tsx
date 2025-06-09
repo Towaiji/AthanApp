@@ -2,8 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import * as Notifications from 'expo-notifications';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Colors } from '../../constants/colors';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 // Function to format time in a readable format
 const formatTime = (timeString: string) => {
@@ -147,6 +156,36 @@ const fetchPrayerTimes = async (latitude: number, longitude: number) => {
   }
 };
 
+const schedulePrayerNotifications = async (times: { [key: string]: string }) => {
+  const { status } = await Notifications.requestPermissionsAsync();
+  if (status !== 'granted') {
+    return;
+  }
+
+  await Notifications.cancelAllScheduledNotificationsAsync();
+
+  const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  for (const prayer of prayers) {
+    const timeString = times[prayer];
+    if (!timeString) continue;
+
+    const [hour, minute] = timeString.split(':').map(Number);
+    const trigger = new Date();
+    trigger.setHours(hour, minute, 0, 0);
+    if (trigger <= new Date()) {
+      trigger.setDate(trigger.getDate() + 1);
+    }
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `Time for ${prayer}`,
+        body: `It's time for ${prayer} prayer`,
+      },
+      trigger,
+    });
+  }
+};
+
 export default function PrayerTimes() {
   const { colors } = useTheme();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
@@ -198,6 +237,7 @@ export default function PrayerTimes() {
         locationResult.coords.longitude
       );
       setPrayerTimes(times);
+      await schedulePrayerNotifications(times);
       
       // Fetch Islamic date
       const hijriDate = await getIslamicDate(
