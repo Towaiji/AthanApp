@@ -56,6 +56,9 @@ const translations = {
     donateQuran: "Donate Qur'an",
     warRelief: 'War Relief',
     current: 'Current',
+    dailyTab: 'Daily',
+    hadithOfTheDay: 'Hadith of the Day',
+    dhikrOfTheDay: 'Dhikr of the Day',
   },
   arabic: {
     settings: 'الإعدادات',
@@ -109,6 +112,9 @@ const translations = {
     donateQuran: 'تبرع بالمصحف',
     warRelief: 'إغاثة الحرب',
     current: 'الحالية',
+    dailyTab: 'يومي',
+    hadithOfTheDay: 'حديث اليوم',
+    dhikrOfTheDay: 'ذكر اليوم',
   },
   urdu: {
     settings: 'سیٹنگز',
@@ -162,6 +168,9 @@ const translations = {
     donateQuran: 'قرآن عطیہ کریں',
     warRelief: 'جنگ زدگان کی مدد',
     current: 'موجودہ',
+    dailyTab: 'روزانہ',
+    hadithOfTheDay: 'آج کی حدیث',
+    dhikrOfTheDay: 'آج کا ذکر',
   },
   french: {
     settings: 'Paramètres',
@@ -215,6 +224,9 @@ const translations = {
     donateQuran: 'Offrir un Coran',
     warRelief: 'Aide aux victimes de guerre',
     current: 'Actuelle',
+    dailyTab: 'Quotidien',
+    hadithOfTheDay: 'Hadith du jour',
+    dhikrOfTheDay: 'Dhikr du jour',
   },
   turkish: {
     settings: 'Ayarlar',
@@ -268,6 +280,9 @@ const translations = {
     donateQuran: "Kur'an Bağışı",
     warRelief: 'Savaş Yardımı',
     current: 'Güncel',
+    dailyTab: 'Günlük',
+    hadithOfTheDay: 'Günün Hadisi',
+    dhikrOfTheDay: 'Günün Zikri',
   },
 } as const;
 

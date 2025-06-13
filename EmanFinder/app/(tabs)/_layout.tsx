@@ -77,6 +77,18 @@ export default function TabsLayout() {
           ),
         }}
       />
+
+      {/* Daily Inspiration Tab */}
+      <Tabs.Screen
+        name="daily"
+        options={{
+          headerTitle: t('dailyTab'),
+          tabBarShowLabel: false,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="today" size={24} color={color} />
+          ),
+        }}
+      />
       {/* Zakat Tab */}
       <Tabs.Screen
         name="zakat"
