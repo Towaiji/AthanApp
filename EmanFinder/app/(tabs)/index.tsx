@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Colors } from '../../constants/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { schedulePrayerNotifications } from '../../utils/notifications';
 
 // Function to format time in a readable format
 const formatTime = (timeString: string) => {
@@ -157,6 +159,12 @@ export default function PrayerTimes() {
   const [refreshing, setRefreshing] = useState(false);
   const [islamicDate, setIslamicDate] = useState<string>("Loading...");
   const [locationName, setLocationName] = useState<string>("");
+  const [settings, setSettings] = useState({
+    notificationsEnabled: true,
+    prayerAlerts: true,
+    reminderTime: '15',
+  });
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
   
   const fetchData = async () => {
     try {
@@ -198,6 +206,9 @@ export default function PrayerTimes() {
         locationResult.coords.longitude
       );
       setPrayerTimes(times);
+      if (settings.notificationsEnabled && settings.prayerAlerts) {
+        await schedulePrayerNotifications(times, parseInt(settings.reminderTime, 10));
+      }
       
       // Fetch Islamic date
       const hijriDate = await getIslamicDate(
@@ -217,7 +228,25 @@ export default function PrayerTimes() {
   };
   
   useEffect(() => {
-    fetchData();
+    const init = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('settings');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setSettings({
+            notificationsEnabled: parsed.notificationsEnabled ?? true,
+            prayerAlerts: parsed.prayerAlerts ?? true,
+            reminderTime: parsed.reminderTime ?? '15',
+          });
+        }
+      } catch (e) {
+        console.error('Failed to load settings', e);
+      } finally {
+        setSettingsLoaded(true);
+        fetchData();
+      }
+    };
+    init();
   }, []);
   
   const onRefresh = () => {
@@ -233,7 +262,7 @@ export default function PrayerTimes() {
     ? getTimeUntilNextPrayer(prayerTimes, nextPrayer) 
     : "";
 
-  if (loading && !refreshing) {
+  if ((loading && !refreshing) || !settingsLoaded) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={colors.accent} />

@@ -13,6 +13,7 @@ import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { scheduleZakatNotification } from '../../utils/notifications';
 import { Colors } from '../../constants/colors';
 
 const Settings = () => {
@@ -22,6 +23,8 @@ const Settings = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [prayerAlerts, setPrayerAlerts] = useState(true);
   const [reminderTime, setReminderTime] = useState('15');
+  const [zakatNotifications, setZakatNotifications] = useState(false);
+  const [zakatFrequency, setZakatFrequency] = useState('monthly');
 
   // Prayer calculation method
   const [calculationMethod, setCalculationMethod] = useState('MWL');
@@ -45,6 +48,8 @@ const Settings = () => {
           setNotificationsEnabled(parsed.notificationsEnabled ?? true);
           setPrayerAlerts(parsed.prayerAlerts ?? true);
           setReminderTime(parsed.reminderTime ?? '15');
+          setZakatNotifications(parsed.zakatNotifications ?? false);
+          setZakatFrequency(parsed.zakatFrequency ?? 'monthly');
           setCalculationMethod(parsed.calculationMethod ?? 'MWL');
           setLanguage(parsed.language ?? 'english');
           setUseAutoLocation(parsed.useAutoLocation ?? true);
@@ -61,16 +66,21 @@ const Settings = () => {
       notificationsEnabled,
       prayerAlerts,
       reminderTime,
+      zakatNotifications,
+      zakatFrequency,
       calculationMethod,
       language,
       useAutoLocation,
     };
-    try {
-      await AsyncStorage.setItem('settings', JSON.stringify(data));
-      Alert.alert('Settings Saved', 'Your preferences have been updated');
-    } catch (e) {
-      console.error('Failed to save settings', e);
+  try {
+    await AsyncStorage.setItem('settings', JSON.stringify(data));
+    if (notificationsEnabled && zakatNotifications) {
+      await scheduleZakatNotification(zakatFrequency);
     }
+    Alert.alert('Settings Saved', 'Your preferences have been updated');
+  } catch (e) {
+    console.error('Failed to save settings', e);
+  }
   };
 
   const resetToDefaults = () => {
@@ -85,6 +95,8 @@ const Settings = () => {
             setNotificationsEnabled(true);
             setPrayerAlerts(true);
             setReminderTime('15');
+            setZakatNotifications(false);
+            setZakatFrequency('monthly');
             setCalculationMethod('MWL');
             setLanguage('english');
             setUseAutoLocation(true);
@@ -94,6 +106,8 @@ const Settings = () => {
                 notificationsEnabled: true,
                 prayerAlerts: true,
                 reminderTime: '15',
+                zakatNotifications: false,
+                zakatFrequency: 'monthly',
                 calculationMethod: 'MWL',
                 language: 'english',
                 useAutoLocation: true,
@@ -140,24 +154,57 @@ const Settings = () => {
               />
             </View>
 
-            <View style={styles.setting}>
-              <Text style={styles.settingText}>{t('reminderBeforePrayer')}</Text>
-              <View style={styles.inlinePickerContainer}>
-                <Picker
-                  selectedValue={reminderTime}
-                  style={styles.reminderPicker}   
-                  itemStyle={styles.pickerItem}   
-                  onValueChange={(itemValue) => setReminderTime(itemValue)}
-                  mode="dropdown"
-                >
-                  <Picker.Item label="5 minutes" value="5" />
-                  <Picker.Item label="10 minutes" value="10" />
-                  <Picker.Item label="15 minutes" value="15" />
-                  <Picker.Item label="20 minutes" value="20" />
-                  <Picker.Item label="30 minutes" value="30" />
-                </Picker>
+            {prayerAlerts && (
+              <View style={styles.setting}>
+                <Text style={styles.settingText}>{t('reminderBeforePrayer')}</Text>
+                <View style={styles.inlinePickerContainer}>
+                  <Picker
+                    selectedValue={reminderTime}
+                    style={styles.reminderPicker}
+                    itemStyle={styles.pickerItem}
+                    onValueChange={(itemValue) => setReminderTime(itemValue)}
+                    mode="dropdown"
+                  >
+                    <Picker.Item label="5 minutes" value="5" />
+                    <Picker.Item label="10 minutes" value="10" />
+                    <Picker.Item label="15 minutes" value="15" />
+                    <Picker.Item label="20 minutes" value="20" />
+                    <Picker.Item label="30 minutes" value="30" />
+                  </Picker>
+                </View>
               </View>
+            )}
+
+            <View style={styles.setting}>
+              <Text style={styles.settingText}>{t('zakatNotifications')}</Text>
+              <Switch
+                onValueChange={() => setZakatNotifications(prev => !prev)}
+                value={zakatNotifications}
+                trackColor={{ false: "#d3d3d3", true: colors.accent }}
+                thumbColor={zakatNotifications ? "#fff" : "#f4f3f4"}
+              />
             </View>
+
+            {zakatNotifications && (
+              <View style={styles.setting}>
+                <Text style={styles.settingText}>{t('zakatFrequency')}</Text>
+                <View style={styles.inlinePickerContainer}>
+                  <Picker
+                    selectedValue={zakatFrequency}
+                    style={styles.reminderPicker}
+                    itemStyle={styles.pickerItem}
+                    onValueChange={(itemValue) => setZakatFrequency(itemValue)}
+                    mode="dropdown"
+                  >
+                    <Picker.Item label="Daily" value="daily" />
+                    <Picker.Item label="Weekly" value="weekly" />
+                    <Picker.Item label="Biweekly" value="biweekly" />
+                    <Picker.Item label="Monthly" value="monthly" />
+                    <Picker.Item label="Yearly" value="yearly" />
+                  </Picker>
+                </View>
+              </View>
+            )}
 
           </>
         )}
