@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage, Translations } from '../../contexts/LanguageContext';
 import { Colors } from '../../constants/colors';
@@ -26,17 +27,23 @@ const getCurrentDate = () => {
 };
 
 // Function to get current Islamic date using Aladhan API
-const getIslamicDate = async (latitude: number, longitude: number) => {
+const getIslamicDate = async (
+  latitude: number,
+  longitude: number,
+  method: number,
+  timezone: string
+) => {
   try {
-    const response = await fetch(
-      `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=2`
-    );
+    const url =
+      `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}` +
+      `&method=${method}&timezonestring=${encodeURIComponent(timezone)}`;
+    const response = await fetch(url);
     const data = await response.json();
     const hijriDate = data.data.date.hijri;
     return `${hijriDate.month.en} ${hijriDate.day}, ${hijriDate.year} AH`;
   } catch (error) {
     console.error('Error fetching Islamic date:', error);
-    return "Unable to fetch Islamic date";
+    return 'Unable to fetch Islamic date';
   }
 };
 
@@ -126,13 +133,28 @@ const prayerKeyMap: Record<string, keyof Translations> = {
   Isha: 'isha',
 };
 
+// Map stored method string to Aladhan method numbers
+const calculationMethodMap: Record<string, number> = {
+  MWL: 3,
+  ISNA: 2,
+  Egyptian: 5,
+  Karachi: 1,
+  Makkah: 4,
+};
+
 // Function to fetch prayer times from Aladhan API
-const fetchPrayerTimes = async (latitude: number, longitude: number) => {
+const fetchPrayerTimes = async (
+  latitude: number,
+  longitude: number,
+  method: number,
+  timezone: string
+) => {
   try {
     // Make an actual API call to Aladhan API
-    const response = await fetch(
-      `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=2`
-    );
+    const url =
+      `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}` +
+      `&method=${method}&timezonestring=${encodeURIComponent(timezone)}`;
+    const response = await fetch(url);
     
     if (!response.ok) {
       throw new Error(`API responded with status: ${response.status}`);
@@ -169,6 +191,7 @@ export default function PrayerTimes() {
   const [refreshing, setRefreshing] = useState(false);
   const [islamicDate, setIslamicDate] = useState<string>("Loading...");
   const [locationName, setLocationName] = useState<string>("");
+  const [calculationMethod, setCalculationMethod] = useState<string>('MWL');
   
   const fetchData = async () => {
     try {
@@ -204,17 +227,25 @@ export default function PrayerTimes() {
         console.error('Error getting location name:', geoError);
       }
       
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const methodId =
+        calculationMethodMap[calculationMethod] ?? calculationMethodMap.MWL;
+
       // Fetch prayer times using location
       const times = await fetchPrayerTimes(
         locationResult.coords.latitude,
-        locationResult.coords.longitude
+        locationResult.coords.longitude,
+        methodId,
+        timezone
       );
       setPrayerTimes(times);
-      
+
       // Fetch Islamic date
       const hijriDate = await getIslamicDate(
         locationResult.coords.latitude,
-        locationResult.coords.longitude
+        locationResult.coords.longitude,
+        methodId,
+        timezone
       );
       setIslamicDate(hijriDate);
       
@@ -229,7 +260,21 @@ export default function PrayerTimes() {
   };
   
   useEffect(() => {
-    fetchData();
+    const loadSettingsAndFetch = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('settings');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.calculationMethod) {
+            setCalculationMethod(parsed.calculationMethod);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load settings', e);
+      }
+      fetchData();
+    };
+    loadSettingsAndFetch();
   }, []);
   
   const onRefresh = () => {
