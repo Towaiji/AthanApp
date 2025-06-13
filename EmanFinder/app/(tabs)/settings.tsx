@@ -286,10 +286,13 @@ const Settings = () => {
             <Text style={styles.valueText}>
               {language === 'english' ? 'English' :
                 language === 'arabic' ? 'العربية' :
-                  language === 'urdu' ? 'اردو' :
-                    language === 'french' ? 'Français' :
-                      language === 'turkish' ? 'Türkçe' :
-                        'English'}
+                language === 'urdu' ? 'اردو' :
+                language === 'french' ? 'Français' :
+                language === 'turkish' ? 'Türkçe' :
+                language === 'indonesian' ? 'Bahasa Indonesia' :
+                language === 'malay' ? 'Bahasa Melayu' :
+                language === 'spanish' ? 'Español' :
+                'English'}
             </Text>
             <Ionicons name="chevron-down" size={16} color="#666" />
           </View>
@@ -311,6 +314,9 @@ const Settings = () => {
               <Picker.Item label="اردو (Urdu)" value="urdu" />
               <Picker.Item label="Français (French)" value="french" />
               <Picker.Item label="Türkçe (Turkish)" value="turkish" />
+              <Picker.Item label="Bahasa Indonesia" value="indonesian" />
+              <Picker.Item label="Bahasa Melayu" value="malay" />
+              <Picker.Item label="Español (Spanish)" value="spanish" />
             </Picker>
           </View>
         )}

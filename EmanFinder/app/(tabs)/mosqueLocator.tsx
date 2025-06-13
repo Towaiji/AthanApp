@@ -50,6 +50,9 @@ const langCodeMap = {
   urdu: 'ur',
   french: 'fr',
   turkish: 'tr',
+  indonesian: 'id',
+  malay: 'ms',
+  spanish: 'es',
 };
 
 const fetchNearby = async (lat: number, lng: number, languageCode: string, radiusKm = 10): Promise<Mosque[]> => {
