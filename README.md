@@ -14,7 +14,8 @@ A mobile application built with Expo and React Native for daily Islamic practice
 - **Qibla Direction**
   - Uses `react-native-qibla-finder` to display a compass pointing to the Qibla
 - **Quran Reader**
-  - Embedded WebView that loads Quran.com
+  - Web-based reader for online access
+  - Download specific surahs or translations for offline use
 - **Settings**
   - Configure notifications, calculation method, appearance, language and location options
 
