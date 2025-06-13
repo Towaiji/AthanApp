@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ActivityIndicator, ScrollView, RefreshControl }
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage, Translations } from '../../contexts/LanguageContext';
 import { Colors } from '../../constants/colors';
 
 // Function to format time in a readable format
@@ -115,6 +116,16 @@ const getTimeUntilNextPrayer = (prayerTimes: { [key: string]: string }, nextPray
   return `${diffHrs}h ${diffMins}m`;
 };
 
+// Map API prayer names to translation keys
+const prayerKeyMap: Record<string, keyof Translations> = {
+  Fajr: 'fajr',
+  Sunrise: 'sunrise',
+  Dhuhr: 'dhuhr',
+  Asr: 'asr',
+  Maghrib: 'maghrib',
+  Isha: 'isha',
+};
+
 // Function to fetch prayer times from Aladhan API
 const fetchPrayerTimes = async (latitude: number, longitude: number) => {
   try {
@@ -149,6 +160,7 @@ const fetchPrayerTimes = async (latitude: number, longitude: number) => {
 
 export default function PrayerTimes() {
   const { colors } = useTheme();
+  const { t } = useLanguage();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
   const [prayerTimes, setPrayerTimes] = useState<{ [key: string]: string } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -237,7 +249,7 @@ export default function PrayerTimes() {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={colors.accent} />
-        <Text style={styles.loadingText}>Loading prayer times...</Text>
+        <Text style={styles.loadingText}>{t('loadingPrayerTimes')}</Text>
       </View>
     );
   }
@@ -247,7 +259,7 @@ export default function PrayerTimes() {
       <View style={styles.center}>
         <Ionicons name="alert-circle-outline" size={48} color={colors.error} />
         <Text style={styles.errorText}>{error}</Text>
-        <Text style={styles.retryText} onPress={fetchData}>Tap to retry</Text>
+        <Text style={styles.retryText} onPress={fetchData}>{t('tapToRetry')}</Text>
       </View>
     );
   }
@@ -271,19 +283,19 @@ export default function PrayerTimes() {
       
       {nextPrayer && (
         <View style={styles.nextPrayerCard}>
-          <Text style={styles.nextPrayerLabel}>Next Prayer</Text>
-          <Text style={styles.nextPrayerName}>{nextPrayer}</Text>
+          <Text style={styles.nextPrayerLabel}>{t('nextPrayer')}</Text>
+          <Text style={styles.nextPrayerName}>{nextPrayer ? t(prayerKeyMap[nextPrayer] || (nextPrayer as any)) : ''}</Text>
           <Text style={styles.nextPrayerTime}>
             {prayerTimes && nextPrayer ? formatTime(prayerTimes[nextPrayer]) : ''}
           </Text>
           <Text style={styles.countdownText}>
-            {timeUntilNext} remaining
+            {timeUntilNext} {t('remaining')}
           </Text>
         </View>
       )}
       
       <View style={styles.prayerTimesContainer}>
-        <Text style={styles.sectionTitle}>Today's Prayer Times</Text>
+        <Text style={styles.sectionTitle}>{t('todaysPrayerTimes')}</Text>
         
         {prayerTimes && Object.entries(prayerTimes).map(([prayer, time]) => {
           const isCurrent = prayer === currentPrayer;
@@ -323,8 +335,8 @@ export default function PrayerTimes() {
                 isCurrent && styles.currentText,
                 isNext && styles.nextText
               ]}>
-                {prayer}
-                {isCurrent && <Text style={styles.currentBadge}> (Current)</Text>}
+                {t(prayerKeyMap[prayer] || prayer)}
+                {isCurrent && <Text style={styles.currentBadge}> ({t('current')})</Text>}
               </Text>
               
               <Text style={[
