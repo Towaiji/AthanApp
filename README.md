@@ -35,3 +35,10 @@ npx expo start
 ```
 
 Follow the Expo CLI instructions to run on an emulator, a device, or the web.
+
+## Localization
+
+The app currently ships with translations for English, Arabic, Urdu, French and
+Turkish. This update adds Indonesian, Malay and Spanish support. If you'd like
+to help translate EmanFinder into other languages, feel free to submit a pull
+request.
