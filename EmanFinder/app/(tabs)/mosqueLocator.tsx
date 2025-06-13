@@ -11,7 +11,8 @@ import {
   RefreshControl,
   Linking,
   Platform,
-  Alert
+  Alert,
+  TextInput
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -19,6 +20,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Colors } from '../../constants/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyCPT7j2OT_1vO50ybyKQKCoCQNQ58A62MA';  // ← replace with your key
 
@@ -30,6 +33,8 @@ interface Mosque {
   latitude?: number;
   longitude?: number;
 }
+
+type Favorites = Record<string, Mosque>;
 
 const deg2rad = (deg: number) => deg * (Math.PI / 180);
 
@@ -137,21 +142,45 @@ export default function MosqueLocator() {
   const [refreshing, setRefreshing] = useState(false);
   const [radius, setRadius] = useState(10);
   const [showMap, setShowMap] = useState(false);
+  const [address, setAddress] = useState('');
+  const [favorites, setFavorites] = useState<Favorites>({});
+  const [manualCoords, setManualCoords] = useState<{lat: number; lng: number} | null>(null);
+  const router = useRouter();
   const lastRefresh = useRef(0);
 
-  const load = async (isRefresh = false) => {
+  useEffect(() => {
+    const loadFavs = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('favoriteMosques');
+        if (saved) setFavorites(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to load favorites', e);
+      }
+    };
+    loadFavs();
+  }, []);
+
+  const load = async (isRefresh = false, latOverride?: number, lngOverride?: number) => {
     if (!isRefresh) setLoading(true);
     setError(null);
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        throw new Error('Location permission denied');
+      let lat = latOverride;
+      let lng = lngOverride;
+      if (lat == null || lng == null) {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          throw new Error('Location permission denied');
+        }
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        lat = loc.coords.latitude;
+        lng = loc.coords.longitude;
+        setLocation(loc.coords);
+      } else {
+        setLocation({ latitude: lat, longitude: lng } as any);
       }
-      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      setLocation(loc.coords);
       const list = await fetchNearby(
-        loc.coords.latitude,
-        loc.coords.longitude,
+        lat,
+        lng,
         langCodeMap[language],
         radius
       );
@@ -167,8 +196,12 @@ export default function MosqueLocator() {
   };
 
   useEffect(() => {
-    load();
-  }, [radius]);
+    if (manualCoords) {
+      load(false, manualCoords.lat, manualCoords.lng);
+    } else {
+      load();
+    }
+  }, [radius, manualCoords]);
 
   const onRefresh = () => {
     if (Date.now() - lastRefresh.current < 5000) {
@@ -176,19 +209,72 @@ export default function MosqueLocator() {
       return setRefreshing(false);
     }
     setRefreshing(true);
+    manualCoords ? load(true, manualCoords.lat, manualCoords.lng) : load(true);
+  };
+
+  const searchAddress = async () => {
+    if (!address) return;
+    try {
+      const results = await Location.geocodeAsync(address);
+      if (results.length === 0) {
+        return Alert.alert('Not found', 'Could not geocode that address');
+      }
+      const { latitude, longitude } = results[0];
+      setManualCoords({ lat: latitude, lng: longitude });
+    } catch (e: any) {
+      console.error(e);
+      Alert.alert('Error', e.message || 'Failed to search');
+    }
+  };
+
+  const toggleFavorite = (m: Mosque) => {
+    setFavorites(prev => {
+      const updated = { ...prev };
+      if (updated[m.id]) {
+        delete updated[m.id];
+      } else {
+        updated[m.id] = m;
+      }
+      AsyncStorage.setItem('favoriteMosques', JSON.stringify(updated)).catch(err => console.error('Save fav', err));
+      return updated;
+    });
+  };
+
+  const openDirections = (m: Mosque) => {
+    if (m.latitude && m.longitude) {
+      router.push({ pathname: '/directions', params: { lat: String(m.latitude), lng: String(m.longitude), name: m.name } });
+    } else {
+      openGoogleMaps(m.address);
+    }
+  };
+
+  const openFavorites = () => {
+    router.push('/favorites');
+  };
+
+  const useCurrentLocation = () => {
+    setManualCoords(null);
+    setAddress('');
     load(true);
   };
 
   const renderItem = ({ item }: { item: Mosque }) => {
     const dist = item.distance != null ? `${item.distance.toFixed(1)} km` : '';
     return (
-      <TouchableOpacity style={styles.item} onPress={() => openGoogleMaps(item.address, item.latitude, item.longitude)}>
+      <TouchableOpacity style={styles.item} onPress={() => openDirections(item)}>
         <View style={styles.header}>
           <Ionicons name="navigate-outline" size={28} color={colors.accent} style={{ marginRight: 12 }} />
           <View style={{ flex: 1 }}>
             <Text style={styles.name}>{item.name}</Text>
             <Text style={styles.sub}>{dist}  •  {item.address}</Text>
           </View>
+          <TouchableOpacity onPress={() => toggleFavorite(item)}>
+            <Ionicons
+              name={favorites[item.id] ? 'star' : 'star-outline'}
+              size={22}
+              color={colors.accent}
+            />
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     );
@@ -218,6 +304,27 @@ export default function MosqueLocator() {
             color={showMap ? '#fff' : colors.textSecondary}
           />
         </TouchableOpacity>
+        <TouchableOpacity style={styles.radBtn} onPress={openFavorites}>
+          <Ionicons name="star" size={20} color={colors.textSecondary} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.searchBar}>
+        <TextInput
+          value={address}
+          onChangeText={setAddress}
+          placeholder="Enter address"
+          placeholderTextColor={colors.textSecondary}
+          style={styles.input}
+        />
+        <TouchableOpacity style={styles.searchBtn} onPress={searchAddress}>
+          <Ionicons name="search" size={20} color="#fff" />
+        </TouchableOpacity>
+        {manualCoords && (
+          <TouchableOpacity style={styles.locBtn} onPress={useCurrentLocation}>
+            <Ionicons name="locate" size={20} color="#fff" />
+          </TouchableOpacity>
+        )}
       </View>
 
       {location && (
@@ -256,7 +363,7 @@ export default function MosqueLocator() {
                 coordinate={{ latitude: m.latitude, longitude: m.longitude }}
                 title={m.name}
                 description={m.address}
-                onCalloutPress={() => openGoogleMaps(m.address, m.latitude, m.longitude)}
+                onCalloutPress={() => openDirections(m)}
               />
             ) : null
           ))}
@@ -304,6 +411,35 @@ const createStyles = (colors: Colors) => StyleSheet.create({
   error: { textAlign: 'center', color: colors.error, marginTop: 20 },
 
   map: { flex: 1 },
+
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  input: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    backgroundColor: colors.card,
+    color: colors.text,
+  },
+  searchBtn: {
+    marginLeft: 8,
+    padding: 10,
+    backgroundColor: colors.accent,
+    borderRadius: 8,
+  },
+  locBtn: {
+    marginLeft: 8,
+    padding: 10,
+    backgroundColor: colors.accent,
+    borderRadius: 8,
+  },
 
   item: {
     marginHorizontal: 16,
