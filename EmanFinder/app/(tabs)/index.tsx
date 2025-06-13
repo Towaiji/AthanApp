@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -360,6 +361,11 @@ export default function PrayerTimes() {
         <Text style={styles.apiCreditText}>
           Powered by Aladhan API
         </Text>
+        <Link href="/calendar" asChild>
+          <TouchableOpacity style={styles.calendarButton}>
+            <Text style={styles.calendarButtonText}>{t('islamicCalendar')}</Text>
+          </TouchableOpacity>
+        </Link>
       </View>
     </ScrollView>
   );
@@ -514,6 +520,18 @@ const createStyles = (colors: Colors) => StyleSheet.create({
     fontSize: 10,
     color: colors.textSecondary,
     marginTop: 4,
+  },
+  calendarButton: {
+    marginTop: 12,
+    backgroundColor: colors.accent,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  calendarButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
 
