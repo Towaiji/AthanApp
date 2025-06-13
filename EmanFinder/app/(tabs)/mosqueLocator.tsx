@@ -17,6 +17,7 @@ import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { Colors } from '../../constants/colors';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyCPT7j2OT_1vO50ybyKQKCoCQNQ58A62MA';  // ← replace with your key
@@ -43,13 +44,22 @@ const getDistanceInKm = (lat1: number, lon1: number, lat2: number, lon2: number)
   return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
-const fetchNearby = async (lat: number, lng: number, radiusKm = 10): Promise<Mosque[]> => {
+const langCodeMap = {
+  english: 'en',
+  arabic: 'ar',
+  urdu: 'ur',
+  french: 'fr',
+  turkish: 'tr',
+};
+
+const fetchNearby = async (lat: number, lng: number, languageCode: string, radiusKm = 10): Promise<Mosque[]> => {
   const radiusM = radiusKm * 1000;
   const url = 
     `https://maps.googleapis.com/maps/api/place/nearbysearch/json`
     + `?location=${lat},${lng}`
     + `&radius=${radiusM}`
     + `&type=mosque`
+    + `&language=${languageCode}`
     + `&key=${GOOGLE_PLACES_API_KEY}`;
 
   try {
@@ -115,6 +125,7 @@ const openGoogleMaps = (address: string, lat?: number, lng?: number) => {
 
 export default function MosqueLocator() {
   const { colors } = useTheme();
+  const { language } = useLanguage();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState<Location.LocationObjectCoords | null>(null);
@@ -135,7 +146,12 @@ export default function MosqueLocator() {
       }
       const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       setLocation(loc.coords);
-      const list = await fetchNearby(loc.coords.latitude, loc.coords.longitude, radius);
+      const list = await fetchNearby(
+        loc.coords.latitude,
+        loc.coords.longitude,
+        langCodeMap[language],
+        radius
+      );
       setMosques(list);
       lastRefresh.current = Date.now();
     } catch (err: any) {

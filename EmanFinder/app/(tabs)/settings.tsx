@@ -161,11 +161,11 @@ const Settings = () => {
                     onValueChange={(itemValue) => setReminderTime(itemValue)}
                     mode="dropdown"
                   >
-                    <Picker.Item label="5 minutes" value="5" />
-                    <Picker.Item label="10 minutes" value="10" />
-                    <Picker.Item label="15 minutes" value="15" />
-                    <Picker.Item label="20 minutes" value="20" />
-                    <Picker.Item label="30 minutes" value="30" />
+                    <Picker.Item label={`5 ${t('minutes')}`} value="5" />
+                    <Picker.Item label={`10 ${t('minutes')}`} value="10" />
+                    <Picker.Item label={`15 ${t('minutes')}`} value="15" />
+                    <Picker.Item label={`20 ${t('minutes')}`} value="20" />
+                    <Picker.Item label={`30 ${t('minutes')}`} value="30" />
                   </Picker>
                 </View>
               </View>
@@ -220,12 +220,12 @@ const Settings = () => {
           <Text style={styles.settingText}>{t('calculationMethod')}</Text>
           <View style={styles.valueContainer}>
             <Text style={styles.valueText}>
-              {calculationMethod === 'MWL' ? 'Muslim World League' :
-                calculationMethod === 'ISNA' ? 'ISNA (North America)' :
-                  calculationMethod === 'Egyptian' ? 'Egyptian Authority' :
-                    calculationMethod === 'Karachi' ? 'University of Karachi' :
-                      calculationMethod === 'Makkah' ? 'Umm al-Qura, Makkah' :
-                        'Muslim World League'}
+              {calculationMethod === 'MWL' ? t('methodMWL') :
+                calculationMethod === 'ISNA' ? t('methodISNA') :
+                  calculationMethod === 'Egyptian' ? t('methodEgyptian') :
+                    calculationMethod === 'Karachi' ? t('methodKarachi') :
+                      calculationMethod === 'Makkah' ? t('methodMakkah') :
+                        t('methodMWL')}
             </Text>
             <Ionicons name="chevron-down" size={16} color="#666" />
           </View>
@@ -242,11 +242,11 @@ const Settings = () => {
                 setShowMethodPicker(false);
               }}
             >
-              <Picker.Item label="Muslim World League" value="MWL" />
-              <Picker.Item label="ISNA (North America)" value="ISNA" />
-              <Picker.Item label="Egyptian Authority" value="Egyptian" />
-              <Picker.Item label="University of Karachi" value="Karachi" />
-              <Picker.Item label="Umm al-Qura, Makkah" value="Makkah" />
+              <Picker.Item label={t('methodMWL')} value="MWL" />
+              <Picker.Item label={t('methodISNA')} value="ISNA" />
+              <Picker.Item label={t('methodEgyptian')} value="Egyptian" />
+              <Picker.Item label={t('methodKarachi')} value="Karachi" />
+              <Picker.Item label={t('methodMakkah')} value="Makkah" />
             </Picker>
           </View>
         )}

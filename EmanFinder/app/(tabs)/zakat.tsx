@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { Colors } from '../../constants/colors';
 
 /**
@@ -65,22 +66,23 @@ const donationOptions: Record<string, { name: string; url: string }[]> = {
 };
 
 const causeOptions = [
-  { key: 'hunger', label: 'Hunger Relief', icon: 'restaurant-outline' },
-  { key: 'palestine', label: 'Palestine', icon: 'flag-outline' },
-  { key: 'quran', label: "Donate Qur'an", icon: 'book-outline' },
-  { key: 'war', label: 'War Relief', icon: 'shield-outline' }
+  { key: 'hunger', labelKey: 'hungerRelief', icon: 'restaurant-outline' },
+  { key: 'palestine', labelKey: 'palestine', icon: 'flag-outline' },
+  { key: 'quran', labelKey: 'donateQuran', icon: 'book-outline' },
+  { key: 'war', labelKey: 'warRelief', icon: 'shield-outline' }
 ] as const;
 
 export default function ZakatScreen() {
   const { colors } = useTheme();
+  const { t } = useLanguage();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
   const [cause, setCause] = useState<keyof typeof donationOptions>('hunger');
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingVertical: 20 }}>
-      <Text style={styles.title}>Find a Charity</Text>
+      <Text style={styles.title}>{t('findCharity')}</Text>
 
-      <Text style={styles.label}>Select Cause</Text>
+      <Text style={styles.label}>{t('selectCause')}</Text>
       <View style={styles.causeBar}>
         {causeOptions.map((opt) => (
           <TouchableOpacity
@@ -95,7 +97,7 @@ export default function ZakatScreen() {
               style={{ marginRight: 6 }}
             />
             <Text style={[styles.causeText, cause === opt.key && styles.causeTextActive]}>
-              {opt.label}
+              {t(opt.labelKey as any)}
             </Text>
           </TouchableOpacity>
         ))}
