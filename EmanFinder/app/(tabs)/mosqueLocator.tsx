@@ -245,6 +245,16 @@ export default function MosqueLocator() {
     }
   };
 
+  const openFavorites = () => {
+    router.push('/favorites');
+  };
+
+  const useCurrentLocation = () => {
+    setManualCoords(null);
+    setAddress('');
+    load(true);
+  };
+
   const renderItem = ({ item }: { item: Mosque }) => {
     const dist = item.distance != null ? `${item.distance.toFixed(1)} km` : '';
     return (
@@ -291,6 +301,9 @@ export default function MosqueLocator() {
             color={showMap ? '#fff' : colors.textSecondary}
           />
         </TouchableOpacity>
+        <TouchableOpacity style={styles.radBtn} onPress={openFavorites}>
+          <Ionicons name="star" size={20} color={colors.textSecondary} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchBar}>
@@ -304,6 +317,11 @@ export default function MosqueLocator() {
         <TouchableOpacity style={styles.searchBtn} onPress={searchAddress}>
           <Ionicons name="search" size={20} color="#fff" />
         </TouchableOpacity>
+        {manualCoords && (
+          <TouchableOpacity style={styles.locBtn} onPress={useCurrentLocation}>
+            <Ionicons name="locate" size={20} color="#fff" />
+          </TouchableOpacity>
+        )}
       </View>
 
       {location && (
@@ -408,6 +426,12 @@ const createStyles = (colors: Colors) => StyleSheet.create({
     color: colors.text,
   },
   searchBtn: {
+    marginLeft: 8,
+    padding: 10,
+    backgroundColor: colors.accent,
+    borderRadius: 8,
+  },
+  locBtn: {
     marginLeft: 8,
     padding: 10,
     backgroundColor: colors.accent,

@@ -10,7 +10,9 @@ A mobile application built with Expo and React Native for daily Islamic practice
   - Pull down to refresh the timings
 - **Mosque Locator**
   - Finds nearby mosques using the Google Places API
-  - Supports opening directions in Google Maps
+  - Search by entering an address and switch back to your current location
+  - Save favourite mosques and view them on the Favorites screen
+  - Provides in-app directions via a web view
 - **Qibla Direction**
   - Uses `react-native-qibla-finder` to display a compass pointing to the Qibla
 - **Quran Reader**

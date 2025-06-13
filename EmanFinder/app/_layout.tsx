@@ -19,6 +19,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" options={{ headerTitle: "Not Found" }} />
           <Stack.Screen name="directions" options={{ headerTitle: "Directions" }} />
+          <Stack.Screen name="favorites" options={{ headerTitle: "Favorites" }} />
         </Stack>
       </LanguageProvider>
     </ThemeProvider>
