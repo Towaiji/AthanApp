@@ -24,6 +24,10 @@ const Settings = () => {
   const [reminderTime, setReminderTime] = useState('15');
   const [zakatNotifications, setZakatNotifications] = useState(false);
   const [zakatFrequency, setZakatFrequency] = useState('monthly');
+  const [fajrAlarmEnabled, setFajrAlarmEnabled] = useState(false);
+  const [fajrAlarmOffset, setFajrAlarmOffset] = useState('30');
+  const [ramadanReminders, setRamadanReminders] = useState(false);
+  const [ramadanReminderTime, setRamadanReminderTime] = useState('60');
 
   // Prayer calculation method
   const [calculationMethod, setCalculationMethod] = useState('MWL');
@@ -52,6 +56,10 @@ const Settings = () => {
           setUseAutoLocation(parsed.useAutoLocation ?? true);
           setZakatNotifications(parsed.zakatNotifications ?? false);
           setZakatFrequency(parsed.zakatFrequency ?? 'monthly');
+          setFajrAlarmEnabled(parsed.fajrAlarmEnabled ?? false);
+          setFajrAlarmOffset(parsed.fajrAlarmOffset ?? '30');
+          setRamadanReminders(parsed.ramadanReminders ?? false);
+          setRamadanReminderTime(parsed.ramadanReminderTime ?? '60');
         }
       } catch (e) {
         console.error('Failed to load settings', e);
@@ -70,6 +78,10 @@ const Settings = () => {
       useAutoLocation,
       zakatNotifications,
       zakatFrequency,
+      fajrAlarmEnabled,
+      fajrAlarmOffset,
+      ramadanReminders,
+      ramadanReminderTime,
     };
     try {
       await AsyncStorage.setItem('settings', JSON.stringify(data));
@@ -96,6 +108,10 @@ const Settings = () => {
             setUseAutoLocation(true);
             setZakatNotifications(false);
             setZakatFrequency('monthly');
+            setFajrAlarmEnabled(false);
+            setFajrAlarmOffset('30');
+            setRamadanReminders(false);
+            setRamadanReminderTime('60');
             AsyncStorage.setItem(
               'settings',
               JSON.stringify({
@@ -107,6 +123,10 @@ const Settings = () => {
                 useAutoLocation: true,
                 zakatNotifications: false,
                 zakatFrequency: 'monthly',
+                fajrAlarmEnabled: false,
+                fajrAlarmOffset: '30',
+                ramadanReminders: false,
+                ramadanReminderTime: '60',
               })
             );
             Alert.alert('Settings Reset', 'All settings have been reset to default values');
@@ -197,6 +217,68 @@ const Settings = () => {
                     <Picker.Item label="Biweekly" value="biweekly" />
                     <Picker.Item label="Monthly" value="monthly" />
                     <Picker.Item label="Yearly" value="yearly" />
+                  </Picker>
+                </View>
+              </View>
+            )}
+
+            <View style={styles.setting}>
+              <Text style={styles.settingText}>{t('fajrAlarm')}</Text>
+              <Switch
+                onValueChange={() => setFajrAlarmEnabled(prev => !prev)}
+                value={fajrAlarmEnabled}
+                trackColor={{ false: "#d3d3d3", true: colors.accent }}
+                thumbColor={fajrAlarmEnabled ? "#fff" : "#f4f3f4"}
+              />
+            </View>
+
+            {fajrAlarmEnabled && (
+              <View style={styles.setting}>
+                <Text style={styles.settingText}>{t('fajrAlarmOffset')}</Text>
+                <View style={styles.inlinePickerContainer}>
+                  <Picker
+                    selectedValue={fajrAlarmOffset}
+                    style={styles.reminderPicker}
+                    itemStyle={styles.pickerItem}
+                    onValueChange={(itemValue) => setFajrAlarmOffset(itemValue)}
+                    mode="dropdown"
+                  >
+                    <Picker.Item label={`0 ${t('minutes')}`} value="0" />
+                    <Picker.Item label={`15 ${t('minutes')}`} value="15" />
+                    <Picker.Item label={`30 ${t('minutes')}`} value="30" />
+                    <Picker.Item label={`45 ${t('minutes')}`} value="45" />
+                    <Picker.Item label={`60 ${t('minutes')}`} value="60" />
+                  </Picker>
+                </View>
+              </View>
+            )}
+
+            <View style={styles.setting}>
+              <Text style={styles.settingText}>{t('ramadanReminders')}</Text>
+              <Switch
+                onValueChange={() => setRamadanReminders(prev => !prev)}
+                value={ramadanReminders}
+                trackColor={{ false: "#d3d3d3", true: colors.accent }}
+                thumbColor={ramadanReminders ? "#fff" : "#f4f3f4"}
+              />
+            </View>
+
+            {ramadanReminders && (
+              <View style={styles.setting}>
+                <Text style={styles.settingText}>{t('ramadanReminderTime')}</Text>
+                <View style={styles.inlinePickerContainer}>
+                  <Picker
+                    selectedValue={ramadanReminderTime}
+                    style={styles.reminderPicker}
+                    itemStyle={styles.pickerItem}
+                    onValueChange={(itemValue) => setRamadanReminderTime(itemValue)}
+                    mode="dropdown"
+                  >
+                    <Picker.Item label={`30 ${t('minutes')}`} value="30" />
+                    <Picker.Item label={`45 ${t('minutes')}`} value="45" />
+                    <Picker.Item label={`60 ${t('minutes')}`} value="60" />
+                    <Picker.Item label={`90 ${t('minutes')}`} value="90" />
+                    <Picker.Item label={`120 ${t('minutes')}`} value="120" />
                   </Picker>
                 </View>
               </View>
