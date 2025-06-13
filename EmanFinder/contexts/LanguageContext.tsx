@@ -65,6 +65,8 @@ const translations = {
     warRelief: 'War Relief',
     favorites: 'Favorites',
     current: 'Current',
+    islamicCalendar: 'Islamic Calendar',
+    upcomingEvents: 'Upcoming Islamic Events',
   },
   arabic: {
     settings: 'الإعدادات',
@@ -119,6 +121,8 @@ const translations = {
     warRelief: 'إغاثة الحرب',
     favorites: 'المفضلة',
     current: 'الحالية',
+    islamicCalendar: 'التقويم الهجري',
+    upcomingEvents: 'الأحداث الإسلامية القادمة',
   },
   urdu: {
     settings: 'سیٹنگز',
@@ -173,6 +177,8 @@ const translations = {
     warRelief: 'جنگ زدگان کی مدد',
     favorites: 'پسندیدہ',
     current: 'موجودہ',
+    islamicCalendar: 'اسلامی تقویم',
+    upcomingEvents: 'آنے والے اسلامی مواقع',
   },
   french: {
     settings: 'Paramètres',
@@ -227,6 +233,8 @@ const translations = {
     warRelief: 'Aide aux victimes de guerre',
     favorites: 'Favoris',
     current: 'Actuelle',
+    islamicCalendar: 'Calendrier islamique',
+    upcomingEvents: 'Événements islamiques à venir',
   },
   turkish: {
     settings: 'Ayarlar',
@@ -281,6 +289,8 @@ const translations = {
     warRelief: 'Savaş Yardımı',
     favorites: 'Favoriler',
     current: 'Güncel',
+    islamicCalendar: 'İslami Takvim',
+    upcomingEvents: 'Yaklaşan İslami Etkinlikler',
   },
   indonesian: {
     settings: 'Pengaturan',
