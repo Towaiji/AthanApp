@@ -22,6 +22,8 @@ const Settings = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [prayerAlerts, setPrayerAlerts] = useState(true);
   const [reminderTime, setReminderTime] = useState('15');
+  const [zakatNotifications, setZakatNotifications] = useState(false);
+  const [zakatFrequency, setZakatFrequency] = useState('monthly');
 
   // Prayer calculation method
   const [calculationMethod, setCalculationMethod] = useState('MWL');
@@ -48,6 +50,8 @@ const Settings = () => {
           setCalculationMethod(parsed.calculationMethod ?? 'MWL');
           setLanguage(parsed.language ?? 'english');
           setUseAutoLocation(parsed.useAutoLocation ?? true);
+          setZakatNotifications(parsed.zakatNotifications ?? false);
+          setZakatFrequency(parsed.zakatFrequency ?? 'monthly');
         }
       } catch (e) {
         console.error('Failed to load settings', e);
@@ -64,6 +68,8 @@ const Settings = () => {
       calculationMethod,
       language,
       useAutoLocation,
+      zakatNotifications,
+      zakatFrequency,
     };
     try {
       await AsyncStorage.setItem('settings', JSON.stringify(data));
@@ -88,6 +94,8 @@ const Settings = () => {
             setCalculationMethod('MWL');
             setLanguage('english');
             setUseAutoLocation(true);
+            setZakatNotifications(false);
+            setZakatFrequency('monthly');
             AsyncStorage.setItem(
               'settings',
               JSON.stringify({
@@ -97,6 +105,8 @@ const Settings = () => {
                 calculationMethod: 'MWL',
                 language: 'english',
                 useAutoLocation: true,
+                zakatNotifications: false,
+                zakatFrequency: 'monthly',
               })
             );
             Alert.alert('Settings Reset', 'All settings have been reset to default values');
@@ -140,24 +150,57 @@ const Settings = () => {
               />
             </View>
 
-            <View style={styles.setting}>
-              <Text style={styles.settingText}>{t('reminderBeforePrayer')}</Text>
-              <View style={styles.inlinePickerContainer}>
-                <Picker
-                  selectedValue={reminderTime}
-                  style={styles.reminderPicker}   
-                  itemStyle={styles.pickerItem}   
-                  onValueChange={(itemValue) => setReminderTime(itemValue)}
-                  mode="dropdown"
-                >
-                  <Picker.Item label="5 minutes" value="5" />
-                  <Picker.Item label="10 minutes" value="10" />
-                  <Picker.Item label="15 minutes" value="15" />
-                  <Picker.Item label="20 minutes" value="20" />
-                  <Picker.Item label="30 minutes" value="30" />
-                </Picker>
+            {prayerAlerts && (
+              <View style={styles.setting}>
+                <Text style={styles.settingText}>{t('reminderBeforePrayer')}</Text>
+                <View style={styles.inlinePickerContainer}>
+                  <Picker
+                    selectedValue={reminderTime}
+                    style={styles.reminderPicker}
+                    itemStyle={styles.pickerItem}
+                    onValueChange={(itemValue) => setReminderTime(itemValue)}
+                    mode="dropdown"
+                  >
+                    <Picker.Item label="5 minutes" value="5" />
+                    <Picker.Item label="10 minutes" value="10" />
+                    <Picker.Item label="15 minutes" value="15" />
+                    <Picker.Item label="20 minutes" value="20" />
+                    <Picker.Item label="30 minutes" value="30" />
+                  </Picker>
+                </View>
               </View>
+            )}
+
+            <View style={styles.setting}>
+              <Text style={styles.settingText}>{t('zakatNotifications')}</Text>
+              <Switch
+                onValueChange={() => setZakatNotifications(prev => !prev)}
+                value={zakatNotifications}
+                trackColor={{ false: "#d3d3d3", true: colors.accent }}
+                thumbColor={zakatNotifications ? "#fff" : "#f4f3f4"}
+              />
             </View>
+
+            {zakatNotifications && (
+              <View style={styles.setting}>
+                <Text style={styles.settingText}>{t('zakatFrequency')}</Text>
+                <View style={styles.inlinePickerContainer}>
+                  <Picker
+                    selectedValue={zakatFrequency}
+                    style={styles.reminderPicker}
+                    itemStyle={styles.pickerItem}
+                    onValueChange={(itemValue) => setZakatFrequency(itemValue)}
+                    mode="dropdown"
+                  >
+                    <Picker.Item label="Daily" value="daily" />
+                    <Picker.Item label="Weekly" value="weekly" />
+                    <Picker.Item label="Biweekly" value="biweekly" />
+                    <Picker.Item label="Monthly" value="monthly" />
+                    <Picker.Item label="Yearly" value="yearly" />
+                  </Picker>
+                </View>
+              </View>
+            )}
 
           </>
         )}

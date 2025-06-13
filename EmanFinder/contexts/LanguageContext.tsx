@@ -28,6 +28,8 @@ const translations = {
     qiblaDirection: 'Qibla Direction',
     quran: 'Quran',
     zakat: 'Zakat',
+    zakatNotifications: 'Zakat Notifications',
+    zakatFrequency: 'Frequency',
     settingsTab: 'Settings',
   },
   arabic: {
@@ -55,6 +57,8 @@ const translations = {
     qiblaDirection: 'اتجاه القبلة',
     quran: 'القرآن',
     zakat: 'الزكاة',
+    zakatNotifications: 'تنبيهات الزكاة',
+    zakatFrequency: 'التكرار',
     settingsTab: 'الإعدادات',
   },
   urdu: {
@@ -82,6 +86,8 @@ const translations = {
     qiblaDirection: 'سمت قبلہ',
     quran: 'قرآن',
     zakat: 'زکوٰۃ',
+    zakatNotifications: 'زکوٰۃ کی اطلاعات',
+    zakatFrequency: 'تکرار',
     settingsTab: 'سیٹنگز',
   },
   french: {
@@ -109,6 +115,8 @@ const translations = {
     qiblaDirection: 'Direction de la Qibla',
     quran: 'Coran',
     zakat: 'Zakat',
+    zakatNotifications: 'Notifications de zakat',
+    zakatFrequency: 'Fréquence',
     settingsTab: 'Paramètres',
   },
   turkish: {
@@ -136,6 +144,8 @@ const translations = {
     qiblaDirection: 'Kıble Yönü',
     quran: 'Kur’an',
     zakat: 'Zekat',
+    zakatNotifications: 'Zekat Bildirimleri',
+    zakatFrequency: 'Siklik',
     settingsTab: 'Ayarlar',
   },
 } as const;
