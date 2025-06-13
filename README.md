@@ -17,7 +17,8 @@ A mobile application built with Expo and React Native for daily Islamic practice
   - Lists upcoming events like Ramadan and Eid based on the Hijri date
   - Accessible from the Prayer Times tab via the *Islamic Calendar* button
 - **Quran Reader**
-  - Embedded WebView that loads Quran.com
+  - Web-based reader for online access
+  - Download specific surahs or translations for offline use
 - **Settings**
   - Configure notifications, calculation method, appearance, language and location options
 
