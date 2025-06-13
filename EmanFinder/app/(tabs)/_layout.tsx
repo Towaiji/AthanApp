@@ -77,6 +77,17 @@ export default function TabsLayout() {
           ),
         }}
       />
+      {/* Daily Hadith Tab */}
+      <Tabs.Screen
+        name="hadith"
+        options={{
+          headerTitle: t('dailyHadith'),
+          tabBarShowLabel: false,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="reader-outline" size={24} color={color} />
+          ),
+        }}
+      />
       {/* Zakat Tab */}
       <Tabs.Screen
         name="zakat"
