@@ -55,6 +55,7 @@ const translations = {
     palestine: 'Palestine',
     donateQuran: "Donate Qur'an",
     warRelief: 'War Relief',
+    favorites: 'Favorites',
     current: 'Current',
   },
   arabic: {
@@ -108,6 +109,7 @@ const translations = {
     palestine: 'فلسطين',
     donateQuran: 'تبرع بالمصحف',
     warRelief: 'إغاثة الحرب',
+    favorites: 'المفضلة',
     current: 'الحالية',
   },
   urdu: {
@@ -161,6 +163,7 @@ const translations = {
     palestine: 'فلسطین',
     donateQuran: 'قرآن عطیہ کریں',
     warRelief: 'جنگ زدگان کی مدد',
+    favorites: 'پسندیدہ',
     current: 'موجودہ',
   },
   french: {
@@ -214,6 +217,7 @@ const translations = {
     palestine: 'Palestine',
     donateQuran: 'Offrir un Coran',
     warRelief: 'Aide aux victimes de guerre',
+    favorites: 'Favoris',
     current: 'Actuelle',
   },
   turkish: {
@@ -267,6 +271,7 @@ const translations = {
     palestine: 'Filistin',
     donateQuran: "Kur'an Bağışı",
     warRelief: 'Savaş Yardımı',
+    favorites: 'Favoriler',
     current: 'Güncel',
   },
 } as const;

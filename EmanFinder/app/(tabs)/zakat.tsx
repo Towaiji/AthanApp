@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'r
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useFavorites } from '../../contexts/FavoritesContext';
 import { Colors } from '../../constants/colors';
 
 /**
@@ -66,6 +67,7 @@ const donationOptions: Record<string, { name: string; url: string }[]> = {
 };
 
 const causeOptions = [
+  { key: 'favorites', labelKey: 'favorites', icon: 'star-outline' },
   { key: 'hunger', labelKey: 'hungerRelief', icon: 'restaurant-outline' },
   { key: 'palestine', labelKey: 'palestine', icon: 'flag-outline' },
   { key: 'quran', labelKey: 'donateQuran', icon: 'book-outline' },
@@ -76,7 +78,9 @@ export default function ZakatScreen() {
   const { colors } = useTheme();
   const { t } = useLanguage();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
-  const [cause, setCause] = useState<keyof typeof donationOptions>('hunger');
+  const [cause, setCause] = useState<'favorites' | keyof typeof donationOptions>('hunger');
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const displayedOptions = cause === 'favorites' ? favorites : donationOptions[cause];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingVertical: 20 }}>
@@ -88,7 +92,7 @@ export default function ZakatScreen() {
           <TouchableOpacity
             key={opt.key}
             style={[styles.causeButton, cause === opt.key && styles.causeButtonActive]}
-            onPress={() => setCause(opt.key as keyof typeof donationOptions)}
+            onPress={() => setCause(opt.key as 'favorites' | keyof typeof donationOptions)}
           >
             <Ionicons
               name={opt.icon as any}
@@ -103,15 +107,25 @@ export default function ZakatScreen() {
         ))}
       </View>
 
-      {donationOptions[cause].map((option) => (
-        <TouchableOpacity
-          key={option.name}
-          style={styles.item}
-          onPress={() => Linking.openURL(option.url)}
-        >
-          <Ionicons name="open-outline" size={20} color={colors.accent} style={{ marginRight: 8 }} />
-          <Text style={styles.itemText}>{option.name}</Text>
-        </TouchableOpacity>
+      {displayedOptions.map((option) => (
+        <View key={option.name} style={styles.item}>
+          <TouchableOpacity
+            style={styles.itemMain}
+            onPress={() => Linking.openURL(option.url)}
+          >
+            <Ionicons name="open-outline" size={20} color={colors.accent} style={{ marginRight: 8 }} />
+            <Text style={styles.itemText}>{option.name}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => toggleFavorite({
+              name: option.name,
+              url: option.url,
+              cause: 'cause' in option ? (option as any).cause : cause,
+            })}
+          >
+            <Ionicons name={isFavorite(option.name) ? 'star' : 'star-outline'} size={20} color={colors.accent} />
+          </TouchableOpacity>
+        </View>
       ))}
     </ScrollView>
   );
@@ -165,6 +179,7 @@ const createStyles = (colors: Colors) => StyleSheet.create({
   item: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 12,
     backgroundColor: colors.card,
     borderRadius: 10,
@@ -174,6 +189,11 @@ const createStyles = (colors: Colors) => StyleSheet.create({
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 2
+  },
+  itemMain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   itemText: {
     fontSize: 16,
