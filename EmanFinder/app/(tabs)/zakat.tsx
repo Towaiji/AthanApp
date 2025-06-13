@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useLanguage, Translations } from '../../contexts/LanguageContext';
 import { Colors } from '../../constants/colors';
 
 /**
@@ -12,83 +19,133 @@ import { Colors } from '../../constants/colors';
  *   • quran
  *   • war
  */
-const donationOptions: Record<string, { name: string; url: string }[]> = {
-  hunger: [
-    { name: 'Islamic Relief USA', url: 'https://irusa.org/' },
-    { name: 'Muslim Aid', url: 'https://www.muslimaid.org/' },
-    { name: 'Penny Appeal USA', url: 'https://pennyappealusa.org/' },
-    { name: 'Muslim Hands', url: 'https://muslimhands.org.uk/' },
-    { name: 'Zakat Foundation of America', url: 'https://www.zakat.org/' },
-    { name: 'Human Appeal USA', url: 'https://humanappeal.org/' },
-    { name: 'Islamic Relief UK', url: 'https://www.islamic-relief.org.uk/' },
-    { name: 'Access — Agriculture for Life', url: 'https://access-life.org/' },
-    { name: 'Anera (American Near East Refugee Aid)', url: 'https://www.anera.org/' },
-    { name: 'Mercy-USA for Aid and Development', url: 'https://www.mercyusa.org/' },
-    { name: 'Bread for the World', url: 'https://www.bread.org/' },
-    { name: 'Feed the Hunger', url: 'https://feedthehunger.org/' }
-  ],
-  palestine: [
-    { name: 'UNRWA', url: 'https://donate.unrwa.org/' },
-    { name: 'Human Appeal - Palestine', url: 'https://humanappeal.org.uk/' },
-    { name: 'Medical Aid for Palestinians', url: 'https://www.map.org.uk/' },
-    { name: 'Islamic Relief Palestine', url: 'https://www.islamic-relief.org/' },
-    { name: 'Palestine Children’s Relief Fund', url: 'https://pcrf.net/' },
-    { name: 'U.S. Campaign for Palestinian Rights', url: 'https://uscpr.org/' },
-    { name: 'Middle East Children’s Alliance', url: 'https://www.mecaforpeace.org/' },
-    { name: 'Holy Land Trust', url: 'https://holylandtrust.org/' },
-    { name: 'United Palestinian Appeal', url: 'https://upa-pal.org/' },
-    { name: 'Life for Relief and Development', url: 'https://lifefrd.org/' }
-  ],
-  quran: [
-    { name: 'Donate Quran Project', url: 'https://www.donatequran.com/' },
-    { name: 'Islamic Relief - Quran', url: 'https://www.islamicrelief.org/' },
-    { name: 'Quran for All', url: 'https://www.quranforall.org/' },
-    { name: 'Quran Literacy Project', url: 'https://www.quranliteracyproject.org/' },
-    { name: 'Al-Khair Foundation', url: 'https://alkhair.org/' },
-    { name: 'Quranic Open Source Initiative', url: 'https://github.com/quranopensource/' },
-    { name: 'TarteeleQuran', url: 'https://tarteelequran.org/' },
-    { name: 'Rumi Project', url: 'https://therumiproject.org/' },
-    { name: 'Quran Reading Project', url: 'https://quranreading.org/' },
-    { name: 'Quran Foundation Canada', url: 'https://quranfoundationcanada.ca/' }
-  ],
-  war: [
-    { name: 'Doctors Without Borders', url: 'https://www.doctorswithoutborders.org/' },
-    { name: 'International Rescue Committee', url: 'https://rescue.org/' },
-    { name: 'Islamic Relief – Conflict Zones', url: 'https://www.islamic-relief.org/' },
-    { name: 'World Central Kitchen', url: 'https://wck.org/' },
-    { name: 'CARE (Cooperative for Assistance and Relief Everywhere)', url: 'https://www.care.org/' },
-    { name: 'World Food Program USA', url: 'https://www.wfpusa.org/' },
-    { name: 'Refugees International', url: 'https://www.refugeesinternational.org/' },
-    { name: 'Mercy Corps', url: 'https://www.mercycorps.org/' },
-    { name: 'Save the Children – Conflict Response', url: 'https://www.savethechildren.org/' },
-    { name: 'Norwegian Refugee Council', url: 'https://www.nrc.no/' }
-  ]
+// Donation options organized by group and category
+const donationGroups: Record<string, Record<string, { name: string; url: string }[]>> = {
+  relief: {
+    hunger: [
+      { name: 'Islamic Relief USA', url: 'https://irusa.org/' },
+      { name: 'Muslim Aid', url: 'https://www.muslimaid.org/' },
+      { name: 'Penny Appeal USA', url: 'https://pennyappealusa.org/' },
+      { name: 'Muslim Hands', url: 'https://muslimhands.org.uk/' },
+      { name: 'Zakat Foundation of America', url: 'https://www.zakat.org/' },
+      { name: 'Human Appeal USA', url: 'https://humanappeal.org/' },
+      { name: 'Islamic Relief UK', url: 'https://www.islamic-relief.org.uk/' },
+      { name: 'Access — Agriculture for Life', url: 'https://access-life.org/' },
+      { name: 'Anera (American Near East Refugee Aid)', url: 'https://www.anera.org/' },
+      { name: 'Mercy-USA for Aid and Development', url: 'https://www.mercyusa.org/' },
+      { name: 'Bread for the World', url: 'https://www.bread.org/' },
+      { name: 'Feed the Hunger', url: 'https://feedthehunger.org/' }
+    ],
+    water: [
+      { name: 'Charity: Water', url: 'https://www.charitywater.org/' },
+      { name: 'WaterAid', url: 'https://www.wateraid.org/' },
+      { name: 'Muslim Aid - Water', url: 'https://www.muslimaid.org/' }
+    ],
+    war: [
+      { name: 'Doctors Without Borders', url: 'https://www.doctorswithoutborders.org/' },
+      { name: 'International Rescue Committee', url: 'https://rescue.org/' },
+      { name: 'Islamic Relief – Conflict Zones', url: 'https://www.islamic-relief.org/' },
+      { name: 'World Central Kitchen', url: 'https://wck.org/' },
+      { name: 'CARE (Cooperative for Assistance and Relief Everywhere)', url: 'https://www.care.org/' },
+      { name: 'World Food Program USA', url: 'https://www.wfpusa.org/' },
+      { name: 'Refugees International', url: 'https://www.refugeesinternational.org/' },
+      { name: 'Mercy Corps', url: 'https://www.mercycorps.org/' },
+      { name: 'Save the Children – Conflict Response', url: 'https://www.savethechildren.org/' },
+      { name: 'Norwegian Refugee Council', url: 'https://www.nrc.no/' }
+    ],
+  },
+  community: {
+    palestine: [
+      { name: 'UNRWA', url: 'https://donate.unrwa.org/' },
+      { name: 'Human Appeal - Palestine', url: 'https://humanappeal.org.uk/' },
+      { name: 'Medical Aid for Palestinians', url: 'https://www.map.org.uk/' },
+      { name: 'Islamic Relief Palestine', url: 'https://www.islamic-relief.org/' },
+      { name: 'Palestine Children’s Relief Fund', url: 'https://pcrf.net/' },
+      { name: 'U.S. Campaign for Palestinian Rights', url: 'https://uscpr.org/' },
+      { name: 'Middle East Children’s Alliance', url: 'https://www.mecaforpeace.org/' },
+      { name: 'Holy Land Trust', url: 'https://holylandtrust.org/' },
+      { name: 'United Palestinian Appeal', url: 'https://upa-pal.org/' },
+      { name: 'Life for Relief and Development', url: 'https://lifefrd.org/' }
+    ],
+    quran: [
+      { name: 'Donate Quran Project', url: 'https://www.donatequran.com/' },
+      { name: 'Islamic Relief - Quran', url: 'https://www.islamicrelief.org/' },
+      { name: 'Quran for All', url: 'https://www.quranforall.org/' },
+      { name: 'Quran Literacy Project', url: 'https://www.quranliteracyproject.org/' },
+      { name: 'Al-Khair Foundation', url: 'https://alkhair.org/' },
+      { name: 'Quranic Open Source Initiative', url: 'https://github.com/quranopensource/' },
+      { name: 'TarteeleQuran', url: 'https://tarteelequran.org/' },
+      { name: 'Rumi Project', url: 'https://therumiproject.org/' },
+      { name: 'Quran Reading Project', url: 'https://quranreading.org/' },
+      { name: 'Quran Foundation Canada', url: 'https://quranfoundationcanada.ca/' }
+    ],
+    education: [
+      { name: 'Islamic Scholarship Fund', url: 'https://islamicscholarshipfund.org/' },
+      { name: 'Helping Hand for Relief and Development', url: 'https://www.hhrd.org/' },
+      { name: 'Muslim Aid - Education', url: 'https://www.muslimaid.org/' }
+    ],
+  },
 };
 
-const causeOptions = [
-  { key: 'hunger', labelKey: 'hungerRelief', icon: 'restaurant-outline' },
-  { key: 'palestine', labelKey: 'palestine', icon: 'flag-outline' },
-  { key: 'quran', labelKey: 'donateQuran', icon: 'book-outline' },
-  { key: 'war', labelKey: 'warRelief', icon: 'shield-outline' }
+const groupOptions = [
+  { key: 'relief', labelKey: 'reliefAid' },
+  { key: 'community', labelKey: 'communitySupport' },
 ] as const;
+
+const causeOptions: Record<string, { key: string; labelKey: keyof Translations; icon: string }[]> = {
+  relief: [
+    { key: 'hunger', labelKey: 'hungerRelief', icon: 'restaurant-outline' },
+    { key: 'water', labelKey: 'waterRelief', icon: 'water-outline' },
+    { key: 'war', labelKey: 'warRelief', icon: 'shield-outline' },
+  ],
+  community: [
+    { key: 'palestine', labelKey: 'palestine', icon: 'flag-outline' },
+    { key: 'quran', labelKey: 'donateQuran', icon: 'book-outline' },
+    { key: 'education', labelKey: 'educationSupport', icon: 'school-outline' },
+  ],
+};
 
 export default function ZakatScreen() {
   const { colors } = useTheme();
   const { t } = useLanguage();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
-  const [cause, setCause] = useState<keyof typeof donationOptions>('hunger');
+  const [group, setGroup] = useState<keyof typeof donationGroups>('relief');
+  const [cause, setCause] = useState<keyof (typeof donationGroups)['relief']>('hunger');
+
+  const causes = causeOptions[group];
+
+  const handleGroupChange = (g: keyof typeof donationGroups) => {
+    setGroup(g);
+    const first = causeOptions[g][0].key as any;
+    setCause(first);
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingVertical: 20 }}>
       <Text style={styles.title}>{t('findCharity')}</Text>
 
+      <Text style={styles.label}>{t('selectGroup')}</Text>
+      <View style={styles.groupBar}>
+        {groupOptions.map((g) => (
+          <TouchableOpacity
+            key={g.key}
+            style={[styles.groupButton, group === g.key && styles.groupButtonActive]}
+            onPress={() => handleGroupChange(g.key as keyof typeof donationGroups)}
+          >
+            <Text style={[styles.groupText, group === g.key && styles.groupTextActive]}>
+              {t(g.labelKey as any)}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <Text style={styles.label}>{t('selectCause')}</Text>
       <View style={styles.causeBar}>
-        {causeOptions.map((opt) => (
+        {causes.map((opt) => (
           <TouchableOpacity
             key={opt.key}
             style={[styles.causeButton, cause === opt.key && styles.causeButtonActive]}
-            onPress={() => setCause(opt.key as keyof typeof donationOptions)}
+            onPress={() => setCause(opt.key as any)}
           >
             <Ionicons
               name={opt.icon as any}
@@ -97,13 +154,13 @@ export default function ZakatScreen() {
               style={{ marginRight: 6 }}
             />
             <Text style={[styles.causeText, cause === opt.key && styles.causeTextActive]}>
-              {t(opt.labelKey as any)}
+              {t(opt.labelKey)}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {donationOptions[cause].map((option) => (
+      {donationGroups[group][cause].slice(0, 3).map((option) => (
         <TouchableOpacity
           key={option.name}
           style={styles.item}
@@ -135,6 +192,11 @@ const createStyles = (colors: Colors) => StyleSheet.create({
     flexWrap: 'wrap',
     marginBottom: 16,
   },
+  groupBar: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 16,
+  },
   label: {
     fontSize: 16,
     marginBottom: 8,
@@ -151,12 +213,34 @@ const createStyles = (colors: Colors) => StyleSheet.create({
     marginBottom: 8,
     elevation: 1,
   },
+  groupButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginBottom: 8,
+    elevation: 1,
+  },
+  groupButtonActive: {
+    backgroundColor: colors.accent,
+  },
   causeButtonActive: {
     backgroundColor: colors.accent,
   },
   causeText: {
     fontSize: 14,
     color: colors.accent,
+  },
+  groupText: {
+    fontSize: 14,
+    color: colors.accent,
+  },
+  groupTextActive: {
+    color: '#fff',
+    fontWeight: '600',
   },
   causeTextActive: {
     color: '#fff',
