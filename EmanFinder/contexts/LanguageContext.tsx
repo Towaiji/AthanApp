@@ -56,6 +56,8 @@ const translations = {
     donateQuran: "Donate Qur'an",
     warRelief: 'War Relief',
     current: 'Current',
+    islamicCalendar: 'Islamic Calendar',
+    upcomingEvents: 'Upcoming Islamic Events',
   },
   arabic: {
     settings: 'الإعدادات',
@@ -109,6 +111,8 @@ const translations = {
     donateQuran: 'تبرع بالمصحف',
     warRelief: 'إغاثة الحرب',
     current: 'الحالية',
+    islamicCalendar: 'التقويم الهجري',
+    upcomingEvents: 'الأحداث الإسلامية القادمة',
   },
   urdu: {
     settings: 'سیٹنگز',
@@ -162,6 +166,8 @@ const translations = {
     donateQuran: 'قرآن عطیہ کریں',
     warRelief: 'جنگ زدگان کی مدد',
     current: 'موجودہ',
+    islamicCalendar: 'اسلامی تقویم',
+    upcomingEvents: 'آنے والے اسلامی مواقع',
   },
   french: {
     settings: 'Paramètres',
@@ -215,6 +221,8 @@ const translations = {
     donateQuran: 'Offrir un Coran',
     warRelief: 'Aide aux victimes de guerre',
     current: 'Actuelle',
+    islamicCalendar: 'Calendrier islamique',
+    upcomingEvents: 'Événements islamiques à venir',
   },
   turkish: {
     settings: 'Ayarlar',
@@ -268,6 +276,8 @@ const translations = {
     donateQuran: "Kur'an Bağışı",
     warRelief: 'Savaş Yardımı',
     current: 'Güncel',
+    islamicCalendar: 'İslami Takvim',
+    upcomingEvents: 'Yaklaşan İslami Etkinlikler',
   },
 } as const;
 

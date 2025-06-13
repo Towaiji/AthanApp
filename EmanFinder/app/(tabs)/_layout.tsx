@@ -66,6 +66,17 @@ export default function TabsLayout() {
           ),
         }}
       />
+      {/* Islamic Calendar Tab */}
+      <Tabs.Screen
+        name="calendar"
+        options={{
+          headerTitle: t('islamicCalendar'),
+          tabBarShowLabel: false,
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="calendar" size={24} color={color} />
+          ),
+        }}
+      />
       {/* Quran Reader Tab */}
       <Tabs.Screen
         name="quran"

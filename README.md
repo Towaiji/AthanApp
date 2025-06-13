@@ -13,6 +13,8 @@ A mobile application built with Expo and React Native for daily Islamic practice
   - Supports opening directions in Google Maps
 - **Qibla Direction**
   - Uses `react-native-qibla-finder` to display a compass pointing to the Qibla
+- **Islamic Calendar**
+  - Lists upcoming events like Ramadan and Eid based on the Hijri date
 - **Quran Reader**
   - Embedded WebView that loads Quran.com
 - **Settings**
