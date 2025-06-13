@@ -17,7 +17,6 @@ import { Colors } from '../../constants/colors';
 type Surah = {
   number: number;
   name: string;
-  translation: string;
   ayahs: string[];
 };
 
@@ -27,7 +26,6 @@ export default function QuranScreen() {
 
   const [offlineMode, setOfflineMode] = useState(false);
   const [surahInput, setSurahInput] = useState('');
-  const [translation, setTranslation] = useState('en.asad');
   const [downloaded, setDownloaded] = useState<Surah[]>([]);
   const [selectedSurah, setSelectedSurah] = useState<Surah | null>(null);
 
@@ -55,9 +53,8 @@ export default function QuranScreen() {
       return;
     }
     try {
-      const res = await fetch(
-        `https://api.alquran.cloud/v1/surah/${number}/${translation}`
-      );
+      // Only fetch Arabic
+      const res = await fetch(`https://api.alquran.cloud/v1/surah/${number}`);
       const json = await res.json();
       if (!json.data || !json.data.ayahs) {
         throw new Error('Invalid response');
@@ -65,12 +62,9 @@ export default function QuranScreen() {
       const surah: Surah = {
         number,
         name: json.data.englishName || json.data.name,
-        translation,
         ayahs: json.data.ayahs.map((a: any) => a.text),
       };
-      const updated = downloaded.filter(
-        (s) => !(s.number === number && s.translation === translation)
-      );
+      const updated = downloaded.filter((s) => s.number !== number);
       updated.push(surah);
       await saveSurahs(updated);
       setSurahInput('');
@@ -118,28 +112,54 @@ export default function QuranScreen() {
           keyboardType="numeric"
           style={styles.input}
         />
-        <TextInput
-          placeholder="Translation (e.g. en.asad)"
-          value={translation}
-          onChangeText={setTranslation}
-          style={styles.input}
-        />
         <TouchableOpacity onPress={downloadSurah} style={styles.downloadBtn}>
           <Text style={styles.downloadText}>Download</Text>
         </TouchableOpacity>
       </View>
       <ScrollView style={{ flex: 1 }}>
         {downloaded.map((s) => (
-          <TouchableOpacity
-            key={`${s.number}-${s.translation}`}
-            style={styles.item}
-            onPress={() => setSelectedSurah(s)}
-          >
-            <Text style={styles.itemText}>
-              {s.number}. {s.name} ({s.translation})
-            </Text>
-          </TouchableOpacity>
+          <View key={s.number} style={styles.itemRow}>
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              onPress={() => setSelectedSurah(s)}
+            >
+              <Text style={styles.itemText}>
+                {s.number}. {s.name}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert(
+                  'Delete Surah',
+                  `Delete "${s.name}" from offline storage?`,
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Delete',
+                      style: 'destructive',
+                      onPress: async () => {
+                        const filtered = downloaded.filter(
+                          (x) => x.number !== s.number
+                        );
+                        await saveSurahs(filtered);
+                        if (
+                          selectedSurah &&
+                          selectedSurah.number === s.number
+                        ) {
+                          setSelectedSurah(null);
+                        }
+                      },
+                    },
+                  ]
+                );
+              }}
+              style={styles.deleteBtn}
+            >
+              <Text style={styles.deleteText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
         ))}
+
         {selectedSurah && (
           <View style={styles.surahContainer}>
             {selectedSurah.ayahs.map((v, i) => (
@@ -188,16 +208,24 @@ const createStyles = (colors: Colors) =>
       borderRadius: 6,
     },
     downloadText: { color: '#fff', fontWeight: '600' },
-    item: {
-      padding: 10,
+    itemRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
       backgroundColor: colors.card,
       borderRadius: 8,
       marginHorizontal: 10,
       marginBottom: 8,
+      padding: 10,
     },
     itemText: { color: colors.text },
     surahContainer: { padding: 10 },
     ayah: { marginBottom: 4, color: colors.text },
+    deleteBtn: {
+      marginLeft: 10,
+      backgroundColor: '#ee4444',
+      paddingVertical: 4,
+      paddingHorizontal: 10,
+      borderRadius: 6,
+    },
+    deleteText: { color: '#fff', fontWeight: 'bold' },
   });
-
-
