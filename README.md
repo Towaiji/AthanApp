@@ -15,8 +15,12 @@ A mobile application built with Expo and React Native for daily Islamic practice
   - Provides in-app directions via a web view
 - **Qibla Direction**
   - Uses `react-native-qibla-finder` to display a compass pointing to the Qibla
+- **Islamic Calendar**
+  - Lists upcoming events like Ramadan and Eid based on the Hijri date
+  - Accessible from the Prayer Times tab via the *Islamic Calendar* button
 - **Quran Reader**
-  - Embedded WebView that loads Quran.com
+  - Web-based reader for online access
+  - Download specific surahs or translations for offline use
 - **Settings**
   - Configure notifications, calculation method, appearance, language and location options
 
@@ -37,3 +41,10 @@ npx expo start
 ```
 
 Follow the Expo CLI instructions to run on an emulator, a device, or the web.
+
+## Localization
+
+The app currently ships with translations for English, Arabic, Urdu, French and
+Turkish. This update adds Indonesian, Malay and Spanish support. If you'd like
+to help translate EmanFinder into other languages, feel free to submit a pull
+request.
