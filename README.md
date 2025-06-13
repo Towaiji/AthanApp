@@ -34,4 +34,12 @@ npm install
 npx expo start
 ```
 
+Create a `.env` file in the `EmanFinder` directory and provide your Google Places
+API key:
+
+```bash
+cp .env.example .env
+echo "GOOGLE_PLACES_API_KEY=YOUR_KEY" >> .env # replace YOUR_KEY with your API key
+```
+
 Follow the Expo CLI instructions to run on an emulator, a device, or the web.
