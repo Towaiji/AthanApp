@@ -161,11 +161,10 @@ const Settings = () => {
                     onValueChange={(itemValue) => setReminderTime(itemValue)}
                     mode="dropdown"
                   >
-                    <Picker.Item label={`5 ${t('minutes')}`} value="5" />
-                    <Picker.Item label={`10 ${t('minutes')}`} value="10" />
-                    <Picker.Item label={`15 ${t('minutes')}`} value="15" />
-                    <Picker.Item label={`20 ${t('minutes')}`} value="20" />
-                    <Picker.Item label={`30 ${t('minutes')}`} value="30" />
+                  <Picker.Item label={t('immediate')} value="0" />
+                  <Picker.Item label={`5 ${t('minutes')}`} value="5" />
+                  <Picker.Item label={`15 ${t('minutes')}`} value="15" />
+                  <Picker.Item label={`30 ${t('minutes')}`} value="30" />
                   </Picker>
                 </View>
               </View>

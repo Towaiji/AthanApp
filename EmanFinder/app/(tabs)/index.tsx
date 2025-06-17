@@ -6,6 +6,8 @@ import * as Location from 'expo-location';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage, Translations } from '../../contexts/LanguageContext';
 import { Colors } from '../../constants/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { schedulePrayerNotifications } from '../../notifications';
 
 // Function to format time in a readable format
 const formatTime = (timeString: string) => {
@@ -211,6 +213,20 @@ export default function PrayerTimes() {
         locationResult.coords.longitude
       );
       setPrayerTimes(times);
+
+      // Load saved settings for notifications
+      try {
+        const saved = await AsyncStorage.getItem('settings');
+        const parsed = saved ? JSON.parse(saved) : {};
+        const notificationsEnabled = parsed.notificationsEnabled ?? true;
+        const prayerAlerts = parsed.prayerAlerts ?? true;
+        const reminder = parseInt(parsed.reminderTime ?? '15', 10);
+        if (notificationsEnabled && prayerAlerts) {
+          await schedulePrayerNotifications(times, reminder);
+        }
+      } catch (e) {
+        console.error('Failed to schedule notifications', e);
+      }
       
       // Fetch Islamic date
       const hijriDate = await getIslamicDate(

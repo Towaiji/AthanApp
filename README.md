@@ -5,9 +5,10 @@ A mobile application built with Expo and React Native for daily Islamic practice
 ## Features
 
 - **Prayer Times**
-  - Gets prayer timings from the Aladhan API based on your current location
-  - Shows the current and next prayer with a countdown timer
-  - Pull down to refresh the timings
+- Gets prayer timings from the Aladhan API based on your current location
+- Shows the current and next prayer with a countdown timer
+- Pull down to refresh the timings
+- Receive prayer time notifications with customizable reminders
 - **Mosque Locator**
   - Finds nearby mosques using the Google Places API
   - Search by entering an address and switch back to your current location
@@ -30,7 +31,7 @@ A mobile application built with Expo and React Native for daily Islamic practice
 - **TypeScript** for type safety
 - **Expo Router** for navigation
 - **Google Places API** and **Aladhan API** for external data
-- Additional Expo modules such as `expo-location` and `react-native-webview`
+- Additional Expo modules such as `expo-location`, `expo-notifications` and `react-native-webview`
 
 ## Getting Started
 
